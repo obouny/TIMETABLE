@@ -89,6 +89,15 @@ class Cours(models.Model):
         verbose_name="option",
     )
 
+    class Meta:
+        ordering = ["codeCours"]
+        verbose_name = "cours"
+        verbose_name_plural = "cours"
+
+    def __str__(self) -> str:
+        return f"{self.codeCours} - {self.intitule}"
+
+
 class Salle(models.Model):
 
     nom = models.CharField(max_length=100)

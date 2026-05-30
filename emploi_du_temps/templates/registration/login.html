@@ -1,31 +1,61 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}Connexion - Gestion Emploi du Temps{% endblock %}
+{% block titre %}Connexion — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="page formulaire-pro">
-    <div class="page-entete">
-        <span class="badge">Accès sécurisé</span>
-        <h1>Connexion</h1>
-        <p class="sous-titre">Connectez-vous avec votre compte CD, enseignant ou étudiant.</p>
+<div class="login-shell">
+  <aside class="login-visual">
+    <div>
+      <div class="brand-icon"><i class="ti ti-calendar-event" aria-hidden="true"></i></div>
+      <h2>Gestion des emplois du temps</h2>
+      <p>
+        Connectez-vous pour gérer les ressources, construire la grille officielle
+        et publier les emplois du temps validés.
+      </p>
+      <div class="login-bullets">
+        <span><i class="ti ti-shield-check"></i> Accès sécurisé par rôle</span>
+        <span><i class="ti ti-layout-grid"></i> Éditeur officiel intégré</span>
+        <span><i class="ti ti-school"></i> ENSPM — Université de Maroua</span>
+      </div>
     </div>
+    <p style="font-size:12px;opacity:.78;margin-top:24px;">Chef de département · Enseignant · Étudiant</p>
+  </aside>
 
-    {% if form.errors %}
-        <div class="erreur">Identifiant ou mot de passe incorrect.</div>
-    {% endif %}
-
-    <form method="post">
-        {% csrf_token %}
-        <label for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
-        {{ form.username }}
-
-        <label for="{{ form.password.id_for_label }}">Mot de passe</label>
-        {{ form.password }}
-
-        <div class="actions">
-            <button class="bouton" type="submit">Se connecter</button>
-            <a class="bouton secondaire" href="{% url 'accueil' %}">Retour</a>
+  <section class="login-form-panel">
+    <div class="auth-head">
+      <span class="hero-kicker"><i class="ti ti-shield-lock"></i> Accès sécurisé</span>
+      <h1>Connexion</h1>
+      <p>Saisissez vos identifiants pour accéder à votre espace.</p>
+    </div>
+    <div class="auth-body">
+      {% if form.errors %}
+        <div class="form-errors">
+          <i class="ti ti-alert-circle"></i> Identifiant ou mot de passe incorrect.
         </div>
-    </form>
-</section>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label" for="{{ form.username.id_for_label }}">
+            <i class="ti ti-user" style="color:var(--blue)"></i> Nom d'utilisateur
+          </label>
+          <input class="form-control" type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" value="{{ form.username.value|default:'' }}" placeholder="Ex : cd.informatique" required autofocus>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.password.id_for_label }}">
+            <i class="ti ti-lock" style="color:var(--blue)"></i> Mot de passe
+          </label>
+          <input class="form-control" type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" placeholder="Votre mot de passe" required>
+        </div>
+
+        <div class="login-submit-row">
+          <button class="btn btn-primary" type="submit"><i class="ti ti-login"></i> Se connecter</button>
+          <a class="btn btn-secondary" href="{% url 'accueil' %}">Retour</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
 {% endblock %}

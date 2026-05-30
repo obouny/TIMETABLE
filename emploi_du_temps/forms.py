@@ -13,6 +13,11 @@ class EmploiDuTempsForm(forms.ModelForm):
             "semaine": forms.DateInput(attrs={"type": "date"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
+
 
 class CreneauForm(forms.ModelForm):
 
@@ -33,6 +38,8 @@ class CreneauForm(forms.ModelForm):
         self.fields["enseignant"].queryset = Utilisateur.objects.filter(
             role=Utilisateur.Role.ENSEIGNANT
         )
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
 
     def clean(self):
         cleaned_data = super().clean()

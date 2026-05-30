@@ -1,20 +1,24 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}Supprimer emploi du temps{% endblock %}
+{% block titre %}Supprimer emploi du temps — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="zone-confirmation">
-    <div class="page-entete">
-        <span class="badge">Action irréversible</span>
-        <h1>Supprimer l'emploi du temps</h1>
-        <p>Confirmez-vous la suppression de l'emploi du temps du {{ emploi_du_temps.semaine }} ?</p>
-    </div>
-    <form method="post">
-        {% csrf_token %}
-        <div class="actions">
-            <button class="bouton danger" type="submit">Oui, supprimer</button>
-            <a class="bouton secondaire" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}">Annuler</a>
-        </div>
+<div class="confirm-card">
+  <div class="confirm-head">
+    <div class="confirm-ico-wrap"><i class="ti ti-alert-triangle"></i></div>
+    <h2 class="confirm-title">Supprimer l'emploi du temps</h2>
+    <p class="confirm-text">
+      Voulez-vous vraiment supprimer l'emploi du temps de la semaine du
+      <strong>{{ emploi_du_temps.semaine }}</strong> pour <strong>{{ emploi_du_temps.option }}</strong> ?
+      Cette action est <strong>irréversible</strong>.
+    </p>
+  </div>
+  <div class="confirm-foot">
+    <a class="btn btn-secondary" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}">Annuler</a>
+    <form method="post" style="display:inline">
+      {% csrf_token %}
+      <button class="btn btn-danger-soft" type="submit"><i class="ti ti-trash"></i> Oui, supprimer</button>
     </form>
-</section>
+  </div>
+</div>
 {% endblock %}
