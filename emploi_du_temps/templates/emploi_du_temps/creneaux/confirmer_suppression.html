@@ -1,20 +1,23 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}Supprimer créneau{% endblock %}
+{% block titre %}Supprimer créneau — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="zone-confirmation">
-    <div class="page-entete">
-        <span class="badge">Action irréversible</span>
-        <h1>Supprimer le créneau</h1>
-        <p>Confirmez-vous la suppression du créneau {{ creneau }} ?</p>
-    </div>
-    <form method="post">
-        {% csrf_token %}
-        <div class="actions">
-            <button class="bouton danger" type="submit">Oui, supprimer</button>
-            <a class="bouton secondaire" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}">Annuler</a>
-        </div>
+<div class="confirm-card">
+  <div class="confirm-head">
+    <div class="confirm-ico-wrap"><i class="ti ti-alert-triangle"></i></div>
+    <h2 class="confirm-title">Supprimer le créneau</h2>
+    <p class="confirm-text">
+      Voulez-vous vraiment supprimer <strong>{{ creneau }}</strong> ?
+      Cette action est <strong>irréversible</strong>.
+    </p>
+  </div>
+  <div class="confirm-foot">
+    <a class="btn btn-secondary" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}">Annuler</a>
+    <form method="post" style="display:inline">
+      {% csrf_token %}
+      <button class="btn btn-danger-soft" type="submit"><i class="ti ti-trash"></i> Oui, supprimer</button>
     </form>
-</section>
+  </div>
+</div>
 {% endblock %}

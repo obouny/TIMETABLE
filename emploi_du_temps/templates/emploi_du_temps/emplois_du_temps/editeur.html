@@ -1,10 +1,20 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
 {% block titre %}Éditeur tableau - Emploi du temps{% endblock %}
 
 {% block contenu %}
-<section class="edt-officiel">
-    <div class="entete-institution">
+<div class="page-header no-print">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-layout-grid"></i></div>
+    <div>
+      <h1 class="page-title">Éditeur d'emploi du temps</h1>
+      <p class="page-sub">Semaine du {{ emploi_du_temps.semaine }} — {{ emploi_du_temps.option }}</p>
+    </div>
+  </div>
+</div>
+
+<section class="editor-card">
+    <div class="official-header">
         <div>
             <strong>République du Cameroun</strong><br>
             <em>Paix-Travail-Patrie</em><br><br>
@@ -24,7 +34,7 @@
         </div>
     </div>
 
-    <div class="cartouche-edt">
+    <div class="editor-title">
         <h1>EMPLOI DE TEMPS</h1>
         <p>Année académique 2025 - 2026 - Semestre I</p>
         <p>
@@ -33,17 +43,19 @@
         </p>
     </div>
 
-    <div class="actions no-print">
-        <a class="bouton" href="{% url 'ajouter_creneau' emploi_du_temps.pk %}">Ajouter un créneau</a>
-        <a class="bouton secondaire" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}">Vue détail</a>
-        <a class="bouton secondaire" href="{% url 'liste_emplois_du_temps' %}">Retour</a>
+    <div class="editor-toolbar no-print">
+        <div class="td-actions">
+            <a class="btn btn-success" href="{% url 'ajouter_creneau' emploi_du_temps.pk %}"><i class="ti ti-plus"></i> Ajouter un créneau</a>
+            <a class="btn btn-outline" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}"><i class="ti ti-eye"></i> Vue détail</a>
+            <a class="btn btn-secondary" href="{% url 'liste_emplois_du_temps' %}"><i class="ti ti-arrow-left"></i> Retour</a>
+        </div>
+        <p class="editor-help">
+            Glissez une carte vers une cellule pour déplacer un créneau. Utilisez
+            <strong>Copier</strong> puis <strong>Coller ici</strong> pour dupliquer.
+        </p>
     </div>
 
-    <p class="aide no-print">
-        Glissez une carte vers une cellule pour déplacer un créneau. Cliquez sur
-        <strong>Copier</strong>, puis sur <strong>Coller ici</strong> pour dupliquer un créneau.
-    </p>
-
+    <div class="timetable-wrap">
     <table class="table-edt">
         <thead>
             <tr>
@@ -96,6 +108,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 
     <div class="pied-officiel">
         <p>

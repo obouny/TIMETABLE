@@ -1,26 +1,40 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}{{ titre }}{% endblock %}
+{% block titre %}{{ titre }} — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="page formulaire-pro">
-    <div class="page-entete">
-        <span class="badge">Emploi du temps</span>
-        <h1>{{ titre }}</h1>
-        <p class="sous-titre">Définissez la semaine et l’option. Les créneaux seront ensuite placés sur la grille officielle.</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-calendar-plus"></i></div>
+    <div>
+      <h1 class="page-title">{{ titre }}</h1>
+      <p class="page-sub">Définissez la semaine et l'option, puis ajoutez les créneaux sur la grille officielle.</p>
     </div>
+  </div>
+  <a class="btn btn-secondary" href="{% url 'liste_emplois_du_temps' %}"><i class="ti ti-arrow-left"></i> Retour</a>
+</div>
+
+<div class="form-card">
+  <div class="form-card-head">
+    <h2>Informations générales</h2>
+    <p>Les champs marqués <span style="color:var(--red)">*</span> sont obligatoires</p>
+  </div>
+  <div class="form-card-body">
     <form method="post">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        {% for field in form %}
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {{ field.errors }}
-        {% endfor %}
-        <div class="actions">
-            <button class="bouton" type="submit">Enregistrer</button>
-            <a class="bouton secondaire" href="{% url 'liste_emplois_du_temps' %}">Annuler</a>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+      {% for field in form %}
+        <div class="form-group">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }} <span class="form-required">*</span></label>
+          {{ field }}
+          {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
         </div>
+      {% endfor %}
+      <div class="form-actions">
+        <button class="btn btn-success" type="submit"><i class="ti ti-device-floppy"></i> Enregistrer</button>
+        <a class="btn btn-secondary" href="{% url 'liste_emplois_du_temps' %}">Annuler</a>
+      </div>
     </form>
-</section>
+  </div>
+</div>
 {% endblock %}

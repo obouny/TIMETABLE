@@ -1,31 +1,42 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}Connexion - Gestion Emploi du Temps{% endblock %}
+{% block titre %}Connexion — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="page formulaire-pro">
-    <div class="page-entete">
-        <span class="badge">Accès sécurisé</span>
-        <h1>Connexion</h1>
-        <p class="sous-titre">Connectez-vous avec votre compte CD, enseignant ou étudiant.</p>
-    </div>
-
+<div class="auth-card">
+  <div class="auth-head">
+    <span class="hero-kicker"><i class="ti ti-shield-lock"></i> Accès sécurisé</span>
+    <h1>Connexion</h1>
+    <p>Connectez-vous avec votre compte Chef de département, enseignant ou étudiant.</p>
+  </div>
+  <div class="auth-body">
     {% if form.errors %}
-        <div class="erreur">Identifiant ou mot de passe incorrect.</div>
+      <div class="form-errors">
+        <i class="ti ti-alert-circle"></i> Identifiant ou mot de passe incorrect.
+      </div>
     {% endif %}
 
     <form method="post">
-        {% csrf_token %}
-        <label for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
-        {{ form.username }}
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label" for="{{ form.username.id_for_label }}">
+          <i class="ti ti-user" style="color:var(--blue)"></i> Nom d'utilisateur
+        </label>
+        <input class="form-control" type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" value="{{ form.username.value|default:'' }}" required autofocus>
+      </div>
 
-        <label for="{{ form.password.id_for_label }}">Mot de passe</label>
-        {{ form.password }}
+      <div class="form-group">
+        <label class="form-label" for="{{ form.password.id_for_label }}">
+          <i class="ti ti-lock" style="color:var(--blue)"></i> Mot de passe
+        </label>
+        <input class="form-control" type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" required>
+      </div>
 
-        <div class="actions">
-            <button class="bouton" type="submit">Se connecter</button>
-            <a class="bouton secondaire" href="{% url 'accueil' %}">Retour</a>
-        </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit"><i class="ti ti-login"></i> Se connecter</button>
+        <a class="btn btn-secondary" href="{% url 'accueil' %}">Retour</a>
+      </div>
     </form>
-</section>
+  </div>
+</div>
 {% endblock %}

@@ -1,5 +1,3 @@
-from datetime import timezone
-
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -8,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils import timezone
 
 from emploi_du_temps.forms import CreneauForm, EmploiDuTempsForm
 from emploi_du_temps.grille import JOURS_EDT, PLAGES_HORAIRES, construire_grille, trouver_plage
@@ -16,13 +15,12 @@ from .models import Cours, Creneau, EmploiDuTemps, Option, Salle, Utilisateur
 
 
 class ConnexionView(LoginView):
-    """Page de connexion en français avec redirection par rôle."""
+    """Page de connexion en français avec redirection vers le tableau de bord."""
 
     template_name = "registration/login.html"
     redirect_authenticated_user = True
 
     def get_success_url(self) -> str:
-        """Rediriger tous les utilisateurs connectés vers leur tableau de bord."""
         return reverse_lazy("tableau_de_bord")
 
 
@@ -37,55 +35,47 @@ def accueil(request: HttpRequest) -> HttpResponse:
 def tableau_de_bord(request: HttpRequest) -> HttpResponse:
     """Afficher le tableau de bord correspondant au rôle de l'utilisateur."""
     utilisateur = request.user
+    context = {"utilisateur": utilisateur}
 
     if utilisateur.role == Utilisateur.Role.CD:
         template = "emploi_du_temps/tableaux_de_bord/cd.html"
+        context.update(
+            {
+                "nb_enseignants": Utilisateur.objects.filter(
+                    role=Utilisateur.Role.ENSEIGNANT
+                ).count(),
+                "nb_cours": Cours.objects.count(),
+                "nb_salles": Salle.objects.count(),
+                "nb_options": Option.objects.count(),
+                "nb_emplois": EmploiDuTemps.objects.count(),
+                "nb_brouillons": EmploiDuTemps.objects.filter(
+                    statut=EmploiDuTemps.Statut.BROUILLON
+                ).count(),
+                "nb_publies": EmploiDuTemps.objects.filter(
+                    statut=EmploiDuTemps.Statut.PUBLIE
+                ).count(),
+                "emplois_recents": EmploiDuTemps.objects.select_related("option")[:5],
+            }
+        )
     elif utilisateur.role == Utilisateur.Role.ENSEIGNANT:
         template = "emploi_du_temps/tableaux_de_bord/enseignant.html"
+        context["emplois_du_temps"] = EmploiDuTemps.objects.filter(
+            statut=EmploiDuTemps.Statut.PUBLIE,
+            creneaux__enseignant=utilisateur,
+        ).select_related("option").distinct()
     elif utilisateur.role == Utilisateur.Role.ETUDIANT:
         template = "emploi_du_temps/tableaux_de_bord/etudiant.html"
+        context["emplois_du_temps"] = EmploiDuTemps.objects.filter(
+            statut=EmploiDuTemps.Statut.PUBLIE
+        ).select_related("option")
     else:
         return HttpResponseForbidden("Rôle utilisateur non autorisé.")
 
-    return render(request, template, {"utilisateur": utilisateur})
+    return render(request, template, context)
 
 
 def deconnexion(request: HttpRequest) -> HttpResponse:
     """Déconnecter l'utilisateur puis revenir à la page de connexion."""
-    logout(request)
-    messages.success(request, "Vous êtes déconnecté.")
-    return redirect("login")
-
-
-class ConnexionView(LoginView):
-    template_name = "registration/login.html"
-    redirect_authenticated_user = True
-
-    def get_success_url(self):
-        return reverse_lazy("tableau_de_bord")
-
-
-def accueil(request):
-    if request.user.is_authenticated:
-        return redirect("tableau_de_bord")
-    return render(request, "emploi_du_temps/accueil.html")
-
-
-@login_required
-def tableau_de_bord(request):
-    utilisateur = request.user
-    if utilisateur.role == Utilisateur.Role.CD:
-        template = "emploi_du_temps/tableaux_de_bord/cd.html"
-    elif utilisateur.role == Utilisateur.Role.ENSEIGNANT:
-        template = "emploi_du_temps/tableaux_de_bord/enseignant.html"
-    elif utilisateur.role == Utilisateur.Role.ETUDIANT:
-        template = "emploi_du_temps/tableaux_de_bord/etudiant.html"
-    else:
-        return HttpResponseForbidden("Rôle utilisateur non autorisé.")
-    return render(request, template, {"utilisateur": utilisateur})
-
-
-def deconnexion(request):
     logout(request)
     messages.success(request, "Vous êtes déconnecté.")
     return redirect("login")
@@ -376,19 +366,23 @@ def creer_emploi_du_temps(request: HttpRequest) -> HttpResponse:
     )
 
 
-@cd_requis
+@login_required
 def detail_emploi_du_temps(request: HttpRequest, pk: int) -> HttpResponse:
-    """Afficher le détail d'un emploi du temps et ses créneaux."""
+    """Afficher le détail d'un emploi du temps selon le rôle de l'utilisateur."""
     emploi_du_temps = get_object_or_404(
         EmploiDuTemps.objects.select_related("option", "creePar").prefetch_related(
             "creneaux__cours", "creneaux__enseignant", "creneaux__salle"
         ),
         pk=pk,
     )
+    est_cd = request.user.role == Utilisateur.Role.CD
+    if not est_cd and emploi_du_temps.statut != EmploiDuTemps.Statut.PUBLIE:
+        return HttpResponseForbidden("Cet emploi du temps n'est pas encore publié.")
+
     return render(
         request,
         "emploi_du_temps/emplois_du_temps/detail.html",
-        {"emploi_du_temps": emploi_du_temps},
+        {"emploi_du_temps": emploi_du_temps, "est_cd": est_cd},
     )
 
 

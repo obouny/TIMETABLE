@@ -1,19 +1,36 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}Accueil - Gestion Emploi du Temps{% endblock %}
+{% block titre %}Accueil — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="hero-accueil">
-    <div class="page-entete">
-        <span class="badge">ENSP — Université de Maroua</span>
-        <h1>Gestion Emploi du Temps</h1>
-        <p class="sous-titre">
-            Plateforme centralisée de conception, publication et consultation des emplois du temps.
-            Le Chef de département planifie ; enseignants et étudiants consultent les versions publiées.
-        </p>
+<div class="public-shell">
+  <section class="hero-card">
+    <div class="hero-copy">
+      <span class="hero-kicker"><i class="ti ti-school"></i> ENSPM — Université de Maroua</span>
+      <h1 class="hero-title">Gestion centralisée des emplois du temps</h1>
+      <p class="hero-text">
+        Une plateforme unique pour gérer les ressources, préparer les grilles officielles,
+        publier les emplois du temps validés et permettre la consultation par les enseignants
+        et les étudiants.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{% url 'login' %}"><i class="ti ti-login"></i> Se connecter</a>
+      </div>
     </div>
-    <div class="actions">
-        <a class="bouton" href="{% url 'login' %}">Se connecter</a>
+    <div class="hero-panel">
+      <div class="hero-panel-item">
+        <strong>Ressources</strong>
+        <span>Enseignants, cours, salles et options dans le même espace.</span>
+      </div>
+      <div class="hero-panel-item">
+        <strong>Planification</strong>
+        <span>Création de brouillons, grille officielle, glisser-déposer et publication.</span>
+      </div>
+      <div class="hero-panel-item">
+        <strong>Consultation</strong>
+        <span>Accès par rôle aux emplois du temps publiés.</span>
+      </div>
     </div>
-</section>
+  </section>
+</div>
 {% endblock %}

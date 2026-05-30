@@ -1,16 +1,45 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}Tableau de bord étudiant{% endblock %}
+{% block titre %}Tableau de bord étudiant — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="page">
-    <div class="page-entete">
-        <span class="badge">Lecture seule</span>
-        <h1>Tableau de bord étudiant</h1>
-        <p class="sous-titre">Vous avez un accès en lecture seule et consultez uniquement les emplois du temps publiés de votre option.</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-user-school"></i></div>
+    <div>
+      <h1 class="page-title">Tableau de bord étudiant</h1>
+      <p class="page-sub">Consultez les emplois du temps officiellement publiés.</p>
     </div>
-    <div class="actions">
-        <a class="bouton secondaire" href="{% url 'logout' %}">Se déconnecter</a>
-    </div>
-</section>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Emplois du temps publiés</span>
+    <span class="count-pill">{{ emplois_du_temps.count }} disponible(s)</span>
+  </div>
+  {% if emplois_du_temps %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Semaine</th><th>Option</th><th>Statut</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for emploi in emplois_du_temps %}
+        <tr>
+          <td class="td-bold">{{ emploi.semaine }}</td>
+          <td>{{ emploi.option }}</td>
+          <td><span class="badge badge-green"><span class="dot"></span>{{ emploi.get_statut_display }}</span></td>
+          <td><a class="btn btn-outline btn-sm" href="{% url 'detail_emploi_du_temps' emploi.pk %}"><i class="ti ti-eye"></i> Voir</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-calendar-off"></i></div>
+    <h3 class="empty-title">Aucun emploi du temps publié</h3>
+    <p class="empty-text">Les versions validées apparaîtront ici dès leur publication.</p>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

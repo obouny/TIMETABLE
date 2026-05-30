@@ -1,46 +1,63 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}Emplois du temps{% endblock %}
+{% block titre %}Emplois du temps — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="page">
-    <div class="page-entete">
-        <span class="badge">Module CD</span>
-        <h1>Emplois du temps</h1>
-        <p class="sous-titre">Ouvrez une grille officielle, créez un brouillon ou publiez la version validée.</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-calendar-time"></i></div>
+    <div>
+      <h1 class="page-title">Emplois du temps</h1>
+      <p class="page-sub">Créez les brouillons, ouvrez la grille officielle et publiez les versions validées.</p>
     </div>
-    <div class="actions">
-        <a class="bouton" href="{% url 'creer_emploi_du_temps' %}">Créer un emploi du temps</a>
-        <a class="bouton secondaire" href="{% url 'tableau_de_bord' %}">Tableau de bord</a>
-    </div>
-</section>
+  </div>
+  <a class="btn btn-success" href="{% url 'creer_emploi_du_temps' %}"><i class="ti ti-plus"></i> Créer un emploi du temps</a>
+</div>
 
-<section class="table-pro">
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Liste des emplois du temps</span>
+    <span class="count-pill">{{ emplois_du_temps.count }} au total</span>
+  </div>
+  {% if emplois_du_temps %}
+  <div class="table-wrap">
     <table>
-        <thead>
-            <tr>
-                <th>Semaine</th>
-                <th>Option</th>
-                <th>Statut</th>
-                <th>Créé par</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for emploi in emplois_du_temps %}
-                <tr>
-                    <td>{{ emploi.semaine }}</td>
-                    <td>{{ emploi.option }}</td>
-                    <td><span class="badge">{{ emploi.get_statut_display }}</span></td>
-                    <td>{{ emploi.creePar }}</td>
-                    <td><a href="{% url 'editeur_emploi_du_temps' emploi.pk %}">Ouvrir la grille</a></td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="5">Aucun emploi du temps créé.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <tr><th>Semaine</th><th>Option</th><th>Statut</th><th>Créé par</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for emploi in emplois_du_temps %}
+        <tr>
+          <td class="td-bold">{{ emploi.semaine }}</td>
+          <td>{{ emploi.option }}</td>
+          <td>
+            {% if emploi.statut == "PUBLIE" %}
+              <span class="badge badge-green"><span class="dot"></span>{{ emploi.get_statut_display }}</span>
+            {% elif emploi.statut == "ARCHIVE" %}
+              <span class="badge badge-gray"><span class="dot"></span>{{ emploi.get_statut_display }}</span>
+            {% else %}
+              <span class="badge badge-orange"><span class="dot"></span>{{ emploi.get_statut_display }}</span>
+            {% endif %}
+          </td>
+          <td class="td-muted">{{ emploi.creePar }}</td>
+          <td>
+            <div class="td-actions">
+              <a class="btn btn-primary btn-sm" href="{% url 'editeur_emploi_du_temps' emploi.pk %}"><i class="ti ti-layout-grid"></i> Grille</a>
+              <a class="btn btn-outline btn-sm" href="{% url 'detail_emploi_du_temps' emploi.pk %}"><i class="ti ti-eye"></i> Détail</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-</section>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-calendar-plus"></i></div>
+    <h3 class="empty-title">Aucun emploi du temps</h3>
+    <p class="empty-text">Créez un brouillon pour commencer la planification.</p>
+    <a class="btn btn-success" href="{% url 'creer_emploi_du_temps' %}"><i class="ti ti-plus"></i> Créer</a>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

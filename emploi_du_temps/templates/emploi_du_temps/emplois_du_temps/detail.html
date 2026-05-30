@@ -1,65 +1,84 @@
-{% extends "base.html" %}
+{% extends "emploi_du_temps/base.html" %}
 
-{% block titre %}Détail emploi du temps{% endblock %}
+{% block titre %}Détail emploi du temps — EDT ENSPM{% endblock %}
 
 {% block contenu %}
-<section class="page">
-    <div class="page-entete">
-        <span class="badge">{{ emploi_du_temps.get_statut_display }}</span>
-        <h1>Emploi du temps — semaine du {{ emploi_du_temps.semaine }}</h1>
-        <p class="sous-titre">Vue de contrôle avant ouverture de la grille officielle.</p>
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-calendar-stats"></i></div>
+    <div>
+      <h1 class="page-title">Semaine du {{ emploi_du_temps.semaine }}</h1>
+      <p class="page-sub">{{ emploi_du_temps.option }} — créé par {{ emploi_du_temps.creePar }}</p>
     </div>
-    <div class="meta-grid">
-        <div class="meta-card"><span>Option</span>{{ emploi_du_temps.option }}</div>
-        <div class="meta-card"><span>Statut</span>{{ emploi_du_temps.get_statut_display }}</div>
-        <div class="meta-card"><span>Créé par</span>{{ emploi_du_temps.creePar }}</div>
-    </div>
-    <div class="actions">
-        <a class="bouton" href="{% url 'editeur_emploi_du_temps' emploi_du_temps.pk %}">Ouvrir le tableau officiel</a>
-        <a class="bouton secondaire" href="{% url 'ajouter_creneau' emploi_du_temps.pk %}">Ajouter un créneau</a>
-        <a class="bouton secondaire" href="{% url 'modifier_emploi_du_temps' emploi_du_temps.pk %}">Modifier</a>
-        <a class="bouton secondaire" href="{% url 'supprimer_emploi_du_temps' emploi_du_temps.pk %}">Supprimer</a>
-        {% if emploi_du_temps.statut != "PUBLIE" %}
-            <form method="post" action="{% url 'publier_emploi_du_temps' emploi_du_temps.pk %}">
-                {% csrf_token %}
-                <button class="bouton" type="submit">Publier</button>
-            </form>
-        {% endif %}
-        <a class="bouton secondaire" href="{% url 'liste_emplois_du_temps' %}">Retour</a>
-    </div>
-</section>
+  </div>
+  <div class="td-actions">
+    {% if est_cd %}
+      <a class="btn btn-primary" href="{% url 'editeur_emploi_du_temps' emploi_du_temps.pk %}"><i class="ti ti-layout-grid"></i> Ouvrir la grille</a>
+    {% endif %}
+    <a class="btn btn-secondary" href="{% url 'tableau_de_bord' %}"><i class="ti ti-arrow-left"></i> Retour</a>
+  </div>
+</div>
 
-<section class="table-pro">
+<div class="readonly-grid">
+  <div class="readonly-card"><span>Option</span><strong>{{ emploi_du_temps.option }}</strong></div>
+  <div class="readonly-card"><span>Statut</span><strong>{{ emploi_du_temps.get_statut_display }}</strong></div>
+  <div class="readonly-card"><span>Publication</span><strong>{{ emploi_du_temps.datePublication|default:"Non publié" }}</strong></div>
+</div>
+
+{% if est_cd %}
+<div class="card" style="margin-bottom:18px;">
+  <div class="editor-toolbar">
+    <div class="td-actions">
+      <a class="btn btn-success" href="{% url 'ajouter_creneau' emploi_du_temps.pk %}"><i class="ti ti-plus"></i> Ajouter un créneau</a>
+      <a class="btn btn-outline" href="{% url 'modifier_emploi_du_temps' emploi_du_temps.pk %}"><i class="ti ti-pencil"></i> Modifier</a>
+      <a class="btn btn-danger-soft" href="{% url 'supprimer_emploi_du_temps' emploi_du_temps.pk %}"><i class="ti ti-trash"></i> Supprimer</a>
+    </div>
+    {% if emploi_du_temps.statut != "PUBLIE" %}
+    <form method="post" action="{% url 'publier_emploi_du_temps' emploi_du_temps.pk %}">
+      {% csrf_token %}
+      <button class="btn btn-primary" type="submit"><i class="ti ti-send"></i> Publier</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Créneaux planifiés</span>
+    <span class="count-pill">{{ emploi_du_temps.creneaux.count }} au total</span>
+  </div>
+  {% if emploi_du_temps.creneaux.all %}
+  <div class="table-wrap">
     <table>
-        <thead>
-            <tr>
-                <th>Jour</th>
-                <th>Horaire</th>
-                <th>Cours</th>
-                <th>Enseignant</th>
-                <th>Salle</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for creneau in emploi_du_temps.creneaux.all %}
-                <tr>
-                    <td>{{ creneau.get_jour_display }}</td>
-                    <td>{{ creneau.heureDebut }} - {{ creneau.heureFin }}</td>
-                    <td>{{ creneau.cours }}</td>
-                    <td>{{ creneau.enseignant }}</td>
-                    <td>{{ creneau.salle }}</td>
-                    <td>
-                        <a href="{% url 'modifier_creneau' creneau.pk %}">Modifier</a> ·
-                        <a href="{% url 'supprimer_creneau' creneau.pk %}">Supprimer</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="6">Aucun créneau pour cet emploi du temps.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <tr><th>Jour</th><th>Horaire</th><th>Cours</th><th>Enseignant</th><th>Salle</th>{% if est_cd %}<th>Actions</th>{% endif %}</tr>
+      </thead>
+      <tbody>
+        {% for creneau in emploi_du_temps.creneaux.all %}
+        <tr>
+          <td class="td-bold">{{ creneau.get_jour_display }}</td>
+          <td>{{ creneau.heureDebut }} - {{ creneau.heureFin }}</td>
+          <td>{{ creneau.cours }}</td>
+          <td>{{ creneau.enseignant }}</td>
+          <td>{{ creneau.salle }}</td>
+          {% if est_cd %}
+          <td><div class="td-actions">
+            <a class="btn btn-outline btn-sm" href="{% url 'modifier_creneau' creneau.pk %}"><i class="ti ti-pencil"></i> Modifier</a>
+            <a class="btn btn-danger-soft btn-sm" href="{% url 'supprimer_creneau' creneau.pk %}"><i class="ti ti-trash"></i> Supprimer</a>
+          </div></td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-</section>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-calendar-off"></i></div>
+    <h3 class="empty-title">Aucun créneau</h3>
+    <p class="empty-text">Ajoutez des créneaux depuis la grille officielle.</p>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}
