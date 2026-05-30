@@ -297,8 +297,8 @@ tbody td{padding:13px 18px;color:var(--gray-700);vertical-align:middle}
 .readonly-card strong{font-size:14px;color:var(--gray-900)}
 
 /* ── TIMETABLE OFFICIEL ── */
-.app-layout:has(.official-sheet) .sidebar{display:none}
-.main-content:has(.official-sheet){background:#fff;padding:18px 24px;overflow:auto}
+.official-page .sidebar{display:none}
+.official-page .main-content{background:#fff;padding:18px 24px;overflow:auto}
 .official-actions{
   display:flex;justify-content:space-between;align-items:center;gap:16px;
   margin-bottom:16px;background:var(--white);border:1px solid var(--gray-200);
@@ -327,27 +327,30 @@ tbody td{padding:13px 18px;color:var(--gray-700);vertical-align:middle}
   color:#111;font-size:9px;line-height:1.05;transform:rotate(-4deg)
 }
 .official-seal::before{content:"🌴";font-size:24px;line-height:1;margin-bottom:2px}.official-seal strong{font-size:8px;margin-top:2px}
-.official-green-line{height:8px;margin:3px 28px 8px;border-top:4px solid var(--official-green-soft);border-bottom:3px solid var(--official-green-soft)}
+.official-green-line{height:8px;margin:3px 28px 8px;border-top:4px solid #8bc34a;border-bottom:3px solid #8bc34a;border-top:4px solid var(--official-green-soft);border-bottom:3px solid var(--official-green-soft)}
 .official-title-box{
-  width:74%;margin:0 auto 4px;border:4px solid var(--official-purple);border-radius:18px;
+  width:74%;margin:0 auto 4px;border:4px solid #7030a0;
+  border:4px solid var(--official-purple);border-radius:18px;
   text-align:center;padding:12px 20px 13px;font-weight:700
 }
 .official-title-box h1{font-size:22px;line-height:1;margin:0 0 8px;text-decoration:underline;font-weight:900}
 .official-title-box p{font-size:18px;line-height:1.2;margin:4px 0}.official-title-box p:first-of-type{text-decoration:underline}
-.official-period{color:var(--official-cyan)}.official-site-room{display:flex;justify-content:center;gap:58px;align-items:center;text-decoration:none!important}
-.official-room{color:var(--official-red)}
+.official-period{color:#14a9d6;color:var(--official-cyan)}.official-site-room{display:flex;justify-content:center;gap:58px;align-items:center;text-decoration:none!important}
+.official-room{color:#c51414;color:var(--official-red)}
 .official-table-wrap{padding:0 24px;overflow-x:visible}
 .official-table{
-  width:100%;border-collapse:collapse;table-layout:fixed;border:4px double var(--official-green);
+  width:100%;border-collapse:collapse;table-layout:fixed;border:4px double #009a63;
+  border:4px double var(--official-green);
   font-size:14px;font-weight:700;color:#000;margin:0
 }
-.official-table th,.official-table td{border:4px double var(--official-green);padding:6px;text-align:center;vertical-align:middle;background:#fff}
+.official-table th,.official-table td{border:4px double #009a63;
+  border:4px double var(--official-green);padding:6px;text-align:center;vertical-align:middle;background:#fff}
 .official-table thead th{height:45px;font-size:15px;font-weight:900;background:#fff;color:#000}
 .official-hour-col,.official-table tbody th{width:86px;font-size:14px;font-weight:900;white-space:nowrap;background:#fff;color:#000}
 .official-table tbody tr:not(.official-pause-row){height:104px}.official-cell{position:relative;line-height:1.25}
-.official-pause-row th{height:52px}.official-pause-row td{background:var(--official-pause);font-size:32px;font-weight:900;letter-spacing:1px;color:#000}
+.official-pause-row th{height:52px}.official-pause-row td{background:#bdd7ee;background:var(--official-pause);font-size:32px;font-weight:900;letter-spacing:1px;color:#000}
 .official-course{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:88px;gap:1px;color:#000;cursor:grab}
-.official-course .course-title{font-size:14px;font-weight:900;line-height:1.15}.official-course .course-code{font-size:14px;font-weight:900}.official-course .course-volume{font-size:13px;font-weight:900}.official-course .course-teacher{font-size:14px;color:var(--official-red);font-weight:900}.official-course small{font-size:11px;color:#000;font-weight:700}
+.official-course .course-title{font-size:14px;font-weight:900;line-height:1.15}.official-course .course-code{font-size:14px;font-weight:900}.official-course .course-volume{font-size:13px;font-weight:900}.official-course .course-teacher{font-size:14px;color:#c51414;color:var(--official-red);font-weight:900}.official-course small{font-size:11px;color:#000;font-weight:700}
 .official-cell:hover{background:#fbfffb}.official-cell:hover .cellule-vide,.official-course:hover .actions-cellule{opacity:1;pointer-events:auto}
 .actions-cellule,.cellule-vide{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:6px;opacity:0;pointer-events:none;transition:opacity .15s}
 .actions-cellule a,.actions-cellule button,.cellule-vide a,.cellule-vide button{border:1px solid var(--blue-mid);background:#fff;color:var(--blue);border-radius:7px;padding:4px 7px;font-size:11px;font-weight:700;text-decoration:none;cursor:pointer}
@@ -379,7 +382,7 @@ tbody td{padding:13px 18px;color:var(--gray-700);vertical-align:middle}
 ::-webkit-scrollbar-thumb:hover{background:var(--gray-400)}
 </style>
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 
 <nav class="navbar">
   <a class="navbar-brand" href="{% url 'accueil' %}">
