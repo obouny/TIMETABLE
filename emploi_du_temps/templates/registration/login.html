@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block titre %}Connexion - Gestion Emploi du Temps{% endblock %}
+
+{% block contenu %}
+<section class="page formulaire-pro">
+    <div class="page-entete">
+        <span class="badge">Accès sécurisé</span>
+        <h1>Connexion</h1>
+        <p class="sous-titre">Connectez-vous avec votre compte CD, enseignant ou étudiant.</p>
+    </div>
+
+    {% if form.errors %}
+        <div class="erreur">Identifiant ou mot de passe incorrect.</div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
+        {{ form.username }}
+
+        <label for="{{ form.password.id_for_label }}">Mot de passe</label>
+        {{ form.password }}
+
+        <div class="actions">
+            <button class="bouton" type="submit">Se connecter</button>
+            <a class="bouton secondaire" href="{% url 'accueil' %}">Retour</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

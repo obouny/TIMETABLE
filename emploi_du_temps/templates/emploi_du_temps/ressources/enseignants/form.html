@@ -1,0 +1,95 @@
+{% extends "emploi_du_temps/base.html" %}
+{% block titre %}{{ action }} enseignant — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="ti {% if action == 'Créer' %}ti-user-plus{% else %}ti-user-edit{% endif %}"></i>
+    </div>
+    <div>
+      <h1 class="page-title">{{ action }} un enseignant</h1>
+      <p class="page-sub">
+        {% if action == "Créer" %}Remplissez les informations du nouvel enseignant
+        {% else %}Modifiez les informations de l'enseignant{% endif %}
+      </p>
+    </div>
+  </div>
+  <a href="{% url 'enseignant_liste' %}" class="btn btn-secondary">
+    <i class="ti ti-arrow-left"></i> Retour
+  </a>
+</div>
+
+<div class="form-card">
+  <div class="form-card-head">
+    <h2>Informations personnelles</h2>
+    <p>Les champs marqués <span style="color:var(--red)">*</span> sont obligatoires</p>
+  </div>
+  <div class="form-card-body">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="prenom">
+            <i class="ti ti-id-badge" style="color:var(--blue)"></i>
+            Prénom <span class="form-required">*</span>
+          </label>
+          <input class="form-control" type="text" id="prenom" name="prenom"
+                 value="{{ enseignant.prenom|default:'' }}"
+                 placeholder="Ex : Jean" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="nom">
+            <i class="ti ti-id-badge" style="color:var(--blue)"></i>
+            Nom <span class="form-required">*</span>
+          </label>
+          <input class="form-control" type="text" id="nom" name="nom"
+                 value="{{ enseignant.nom|default:'' }}"
+                 placeholder="Ex : Dupont" required/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">
+          <i class="ti ti-mail" style="color:var(--blue)"></i>
+          Adresse email <span class="form-required">*</span>
+        </label>
+        <input class="form-control" type="email" id="email" name="email"
+               value="{{ enseignant.email|default:'' }}"
+               placeholder="Ex : jean.dupont@enspm.cm" required/>
+      </div>
+
+      {% if action == "Créer" %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="username">
+            <i class="ti ti-at" style="color:var(--blue)"></i>
+            Nom d'utilisateur <span class="form-required">*</span>
+          </label>
+          <input class="form-control" type="text" id="username" name="username"
+                 placeholder="Ex : j.dupont" required/>
+          <p class="form-hint">Utilisé pour la connexion</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">
+            <i class="ti ti-lock" style="color:var(--blue)"></i>
+            Mot de passe <span class="form-required">*</span>
+          </label>
+          <input class="form-control" type="password" id="password" name="password"
+                 placeholder="Minimum 8 caractères" required/>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+          <i class="ti {% if action == 'Créer' %}ti-user-plus{% else %}ti-device-floppy{% endif %}"></i>
+          {% if action == "Créer" %}Créer l'enseignant{% else %}Enregistrer{% endif %}
+        </button>
+        <a href="{% url 'enseignant_liste' %}" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

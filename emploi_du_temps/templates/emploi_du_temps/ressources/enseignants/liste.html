@@ -1,0 +1,74 @@
+{% extends "emploi_du_temps/base.html" %}
+{% block titre %}Enseignants — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-users"></i></div>
+    <div>
+      <h1 class="page-title">Enseignants</h1>
+      <p class="page-sub">Gérez les enseignants du département</p>
+    </div>
+  </div>
+  <a href="{% url 'enseignant_creer' %}" class="btn btn-success">
+    <i class="ti ti-plus"></i> Nouvel enseignant
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Liste des enseignants</span>
+    <span class="count-pill">{{ enseignants.count }} au total</span>
+  </div>
+  {% if enseignants %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom complet</th>
+          <th>Identifiant</th>
+          <th>Email</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in enseignants %}
+        <tr>
+          <td class="td-bold">{{ e.prenom }} {{ e.nom }}</td>
+          <td><span class="badge badge-gray">{{ e.username }}</span></td>
+          <td class="td-muted">{{ e.email }}</td>
+          <td>
+            {% if e.is_active %}
+              <span class="badge badge-green"><span class="dot"></span>Actif</span>
+            {% else %}
+              <span class="badge badge-gray"><span class="dot"></span>Inactif</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="td-actions">
+              <a href="{% url 'enseignant_modifier' e.pk %}" class="btn btn-outline btn-sm">
+                <i class="ti ti-pencil"></i> Modifier
+              </a>
+              <a href="{% url 'enseignant_supprimer' e.pk %}" class="btn btn-danger-soft btn-sm">
+                <i class="ti ti-trash"></i> Supprimer
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-users"></i></div>
+    <h3 class="empty-title">Aucun enseignant</h3>
+    <p class="empty-text">Commencez par ajouter les enseignants du département.</p>
+    <a href="{% url 'enseignant_creer' %}" class="btn btn-success">
+      <i class="ti ti-plus"></i> Ajouter un enseignant
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

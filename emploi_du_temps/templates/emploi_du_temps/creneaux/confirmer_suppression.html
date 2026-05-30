@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block titre %}Supprimer créneau{% endblock %}
+
+{% block contenu %}
+<section class="zone-confirmation">
+    <div class="page-entete">
+        <span class="badge">Action irréversible</span>
+        <h1>Supprimer le créneau</h1>
+        <p>Confirmez-vous la suppression du créneau {{ creneau }} ?</p>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions">
+            <button class="bouton danger" type="submit">Oui, supprimer</button>
+            <a class="bouton secondaire" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}">Annuler</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

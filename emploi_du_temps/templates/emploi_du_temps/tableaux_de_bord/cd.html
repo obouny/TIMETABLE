@@ -1,0 +1,80 @@
+{% extends "emploi_du_temps/base.html" %}
+{% block titre %}Tableau de bord — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-layout-dashboard"></i></div>
+    <div>
+      <h1 class="page-title">Tableau de bord</h1>
+      <p class="page-sub">Bienvenue, {{ user.prenom }} {{ user.nom }} — Chef de département</p>
+    </div>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-ico blue"><i class="ti ti-users"></i></div>
+    <div>
+      <div class="stat-val">{{ nb_enseignants }}</div>
+      <div class="stat-lbl">Enseignants</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-ico green"><i class="ti ti-book-2"></i></div>
+    <div>
+      <div class="stat-val">{{ nb_cours }}</div>
+      <div class="stat-lbl">Cours</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-ico orange"><i class="ti ti-building"></i></div>
+    <div>
+      <div class="stat-val">{{ nb_salles }}</div>
+      <div class="stat-lbl">Salles</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-ico purple"><i class="ti ti-award"></i></div>
+    <div>
+      <div class="stat-val">{{ nb_options }}</div>
+      <div class="stat-lbl">Options</div>
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+  <a href="{% url 'enseignant_liste' %}" class="card" style="padding:20px;display:flex;align-items:center;gap:14px;text-decoration:none;transition:all .2s;">
+    <div class="stat-ico blue"><i class="ti ti-users"></i></div>
+    <div>
+      <div style="font-weight:700;color:var(--gray-900);">Gérer les enseignants</div>
+      <div style="font-size:12px;color:var(--gray-500);margin-top:3px;">Ajouter, modifier, supprimer</div>
+    </div>
+    <i class="ti ti-chevron-right" style="margin-left:auto;color:var(--gray-400);"></i>
+  </a>
+  <a href="{% url 'cours_liste' %}" class="card" style="padding:20px;display:flex;align-items:center;gap:14px;text-decoration:none;transition:all .2s;">
+    <div class="stat-ico green"><i class="ti ti-book-2"></i></div>
+    <div>
+      <div style="font-weight:700;color:var(--gray-900);">Gérer les cours</div>
+      <div style="font-size:12px;color:var(--gray-500);margin-top:3px;">Ajouter, modifier, supprimer</div>
+    </div>
+    <i class="ti ti-chevron-right" style="margin-left:auto;color:var(--gray-400);"></i>
+  </a>
+  <a href="{% url 'salle_liste' %}" class="card" style="padding:20px;display:flex;align-items:center;gap:14px;text-decoration:none;transition:all .2s;">
+    <div class="stat-ico orange"><i class="ti ti-building"></i></div>
+    <div>
+      <div style="font-weight:700;color:var(--gray-900);">Gérer les salles</div>
+      <div style="font-size:12px;color:var(--gray-500);margin-top:3px;">Ajouter, modifier, supprimer</div>
+    </div>
+    <i class="ti ti-chevron-right" style="margin-left:auto;color:var(--gray-400);"></i>
+  </a>
+  <a href="{% url 'option_liste' %}" class="card" style="padding:20px;display:flex;align-items:center;gap:14px;text-decoration:none;transition:all .2s;">
+    <div class="stat-ico purple"><i class="ti ti-award"></i></div>
+    <div>
+      <div style="font-weight:700;color:var(--gray-900);">Gérer les options</div>
+      <div style="font-size:12px;color:var(--gray-500);margin-top:3px;">Ajouter, modifier, supprimer</div>
+    </div>
+    <i class="ti ti-chevron-right" style="margin-left:auto;color:var(--gray-400);"></i>
+  </a>
+</div>
+{% endblock %}

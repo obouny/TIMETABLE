@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block titre %}Gestion Emploi du Temps{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent:       #3b7dd8;
+            --accent-light: #e8f0fb;
+            --accent-hover: #2d6abf;
+            --surface:      #ffffff;
+            --bg:           #f8f9fc;
+            --border:       #e4e7ef;
+            --text:         #1a1f36;
+            --muted:        #6b7693;
+            --success-bg:   #eef8f2;
+            --success-text: #1a7a46;
+            --danger:       #d93025;
+            --pause-bg:     #f0f4ff;
+            --radius-sm:    8px;
+            --radius:       12px;
+            --radius-lg:    16px;
+            --shadow-sm:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+            --shadow:       0 4px 16px rgba(0,0,0,.07);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── BARRE ─────────────────────────────────────── */
+        .barre-app {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .barre-app__contenu {
+            align-items: center;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin: 0 auto;
+            max-width: 1280px;
+            padding: .85rem 1.5rem;
+        }
+        .marque {
+            align-items: center;
+            display: flex;
+            gap: .75rem;
+            text-decoration: none;
+        }
+        .marque:hover { text-decoration: none; }
+        .sceau {
+            align-items: center;
+            background: var(--accent-light);
+            border-radius: var(--radius-sm);
+            color: var(--accent);
+            display: inline-flex;
+            font-size: .75rem;
+            font-weight: 600;
+            height: 36px;
+            justify-content: center;
+            letter-spacing: .02em;
+            width: 36px;
+        }
+        .marque small {
+            color: var(--muted);
+            display: block;
+            font-size: .7rem;
+            font-weight: 500;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .marque strong {
+            color: var(--text);
+            display: block;
+            font-size: .95rem;
+            font-weight: 600;
+        }
+        .meta-utilisateur {
+            color: var(--muted);
+            font-size: .85rem;
+            text-align: right;
+            line-height: 1.4;
+        }
+        .meta-utilisateur strong { color: var(--text); font-weight: 500; }
+
+        /* ── MAIN ──────────────────────────────────────── */
+        main {
+            margin: 0 auto;
+            max-width: 1280px;
+            padding: 2rem 1.5rem 3rem;
+        }
+
+        /* ── PAGE CARD ─────────────────────────────────── */
+        .page,
+        main > form,
+        main > .surface {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 1.75rem 2rem;
+        }
+
+        .page-entete {
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.25rem;
+        }
+
+        h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            font-weight: 400;
+            color: var(--text);
+            letter-spacing: -.02em;
+            line-height: 1.2;
+            margin-bottom: .35rem;
+        }
+        h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 1.5rem 0 .5rem;
+        }
+        h3 { font-size: .9rem; font-weight: 600; color: var(--text); }
+
+        p { margin-bottom: .75rem; }
+
+        .sous-titre {
+            color: var(--muted);
+            font-size: .92rem;
+            font-weight: 400;
+            max-width: 600px;
+        }
+
+        /* ── BADGE ─────────────────────────────────────── */
+        .badge {
+            background: var(--accent-light);
+            border-radius: 999px;
+            color: var(--accent);
+            display: inline-block;
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: .04em;
+            margin-bottom: .6rem;
+            padding: .2rem .65rem;
+            text-transform: uppercase;
+        }
+
+        /* ── BOUTONS ───────────────────────────────────── */
+        .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.25rem; }
+
+        .bouton {
+            align-items: center;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            font-family: inherit;
+            font-size: .875rem;
+            font-weight: 500;
+            gap: .4rem;
+            justify-content: center;
+            min-height: 38px;
+            padding: .5rem 1.1rem;
+            text-decoration: none;
+            transition: background .15s, box-shadow .15s, transform .1s;
+        }
+        .bouton:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 12px rgba(59,125,216,.25);
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+        .bouton:active { transform: translateY(0); }
+
+        .bouton.secondaire {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .bouton.secondaire:hover {
+            background: var(--bg);
+            box-shadow: var(--shadow-sm);
+        }
+        .bouton.danger {
+            background: var(--danger);
+        }
+        .bouton.danger:hover {
+            background: #b8271f;
+            box-shadow: 0 4px 12px rgba(217,48,37,.25);
+        }
+
+        /* ── MESSAGES ──────────────────────────────────── */
+        .message {
+            background: var(--success-bg);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--success-text);
+            color: var(--success-text);
+            font-size: .9rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            padding: .8rem 1rem;
+        }
+        .erreur, .errorlist {
+            color: var(--danger);
+            font-size: .875rem;
+            font-weight: 500;
+            margin: .4rem 0;
+        }
+
+        /* ── FORMULAIRES ───────────────────────────────── */
+        label {
+            color: var(--text);
+            display: block;
+            font-size: .85rem;
+            font-weight: 500;
+            margin-top: 1.1rem;
+            margin-bottom: .35rem;
+        }
+        input, select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            display: block;
+            font-family: inherit;
+            font-size: .9rem;
+            min-height: 40px;
+            padding: .55rem .85rem;
+            transition: border-color .15s, box-shadow .15s;
+            width: 100%;
+        }
+        input:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59,125,216,.12);
+            outline: none;
+        }
+        .formulaire-pro { max-width: 520px; }
+
+        /* ── META GRID ─────────────────────────────────── */
+        .meta-grid {
+            display: grid;
+            gap: .75rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin: 1rem 0;
+        }
+        .meta-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: .9rem 1rem;
+        }
+        .meta-card span {
+            color: var(--muted);
+            display: block;
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .06em;
+            margin-bottom: .25rem;
+            text-transform: uppercase;
+        }
+
+        /* ── TABLE ─────────────────────────────────────── */
+        table { border-collapse: collapse; width: 100%; }
+
+        .table-pro {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin-top: 1.25rem;
+            overflow: hidden;
+        }
+        .table-pro table { margin: 0; }
+
+        th, td {
+            border-bottom: 1px solid var(--border);
+            font-size: .875rem;
+            padding: .75rem 1rem;
+            text-align: left;
+            vertical-align: middle;
+        }
+        thead th {
+            background: var(--bg);
+            color: var(--muted);
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #fafbfe; }
+
+        /* ── CONFIRMATION ──────────────────────────────── */
+        .zone-confirmation {
+            background: #fff8f8;
+            border: 1px solid #fbd3d1;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 1.75rem 2rem;
+        }
+
+        /* ── HERO ACCUEIL ──────────────────────────────── */
+        .hero-accueil {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 2.5rem 2rem;
+        }
+
+        /* ── DASHBOARD ─────────────────────────────────── */
+        .dashboard-cartes {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            margin-top: 1.25rem;
+        }
+        .dashboard-carte {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.25rem 1rem;
+        }
+        .dashboard-carte h2 { margin-top: 0; }
+
+        /* ── AIDE ──────────────────────────────────────── */
+        .aide {
+            background: #f0f4ff;
+            border: 1px solid #d0daf8;
+            border-radius: var(--radius-sm);
+            color: #3451b8;
+            font-size: .85rem;
+            margin: .75rem 0;
+            padding: .7rem 1rem;
+        }
+
+        /* ── EDT OFFICIEL ──────────────────────────────── */
+        .edt-officiel {
+            background: var(--surface);
+            color: var(--text);
+            padding: 1rem 0;
+        }
+        .entete-institution {
+            align-items: flex-start;
+            border-bottom: 2px solid var(--border);
+            display: grid;
+            font-size: .72rem;
+            font-weight: 500;
+            gap: 1rem;
+            grid-template-columns: 1fr 80px 1fr;
+            line-height: 1.5;
+            padding: 0 .5rem 1rem;
+            text-align: center;
+            color: var(--muted);
+        }
+        .entete-institution strong { color: var(--text); }
+
+        .logo-texte {
+            align-items: center;
+            align-self: center;
+            background: var(--accent-light);
+            border-radius: var(--radius-sm);
+            color: var(--accent);
+            display: flex;
+            font-size: .9rem;
+            font-weight: 700;
+            height: 56px;
+            justify-content: center;
+            justify-self: center;
+            width: 56px;
+        }
+
+        .cartouche-edt {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin: 1.2rem auto .9rem;
+            max-width: 860px;
+            padding: .85rem 1.2rem;
+            text-align: center;
+        }
+        .cartouche-edt h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: .06em;
+            margin-bottom: .25rem;
+            text-transform: uppercase;
+        }
+        .cartouche-edt p {
+            font-size: .875rem;
+            color: var(--muted);
+            margin: .15rem 0;
+        }
+        .cartouche-edt span { color: var(--accent); margin-left: 2rem; }
+
+        /* ── TABLE EDT ─────────────────────────────────── */
+        .table-edt {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            table-layout: fixed;
+            width: 100%;
+        }
+        .table-edt th,
+        .table-edt td {
+            border: 1px solid var(--border);
+            text-align: center;
+            vertical-align: middle;
+        }
+        .table-edt thead th {
+            background: var(--bg);
+            font-size: .72rem;
+            font-weight: 600;
+            height: 40px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        .table-edt tbody th {
+            background: var(--bg);
+            color: var(--muted);
+            font-size: .75rem;
+            font-weight: 600;
+            width: 110px;
+        }
+        .cellule-edt {
+            height: 120px;
+            padding: .4rem;
+            position: relative;
+        }
+        .pause {
+            background: var(--pause-bg);
+            color: var(--muted);
+            font-size: .8rem;
+            font-weight: 600;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+        }
+        .carte-creneau {
+            background: var(--accent-light);
+            border: 1px solid #c5d9f7;
+            border-radius: var(--radius-sm);
+            cursor: grab;
+            font-size: .78rem;
+            font-weight: 500;
+            line-height: 1.4;
+            padding: .4rem .5rem;
+            height: 100%;
+        }
+        .carte-creneau strong { color: var(--text); font-weight: 600; }
+        .carte-creneau .enseignant {
+            color: var(--accent);
+            display: inline-block;
+            font-weight: 500;
+            margin-top: .15rem;
+        }
+        .carte-creneau small { color: var(--muted); }
+        .cellule-vide { opacity: 0; transition: opacity .2s; }
+        .cellule-edt:hover .cellule-vide { opacity: 1; }
+        .actions-cellule {
+            display: flex;
+            gap: .35rem;
+            justify-content: center;
+            margin-top: .3rem;
+        }
+        .actions-cellule button,
+        .actions-cellule a,
+        .cellule-vide button,
+        .cellule-vide a {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: .75rem;
+            font-weight: 500;
+            padding: 0;
+            text-decoration: underline;
+        }
+        .pied-officiel {
+            color: var(--muted);
+            display: flex;
+            font-size: .78rem;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-top: .75rem;
+            padding-top: .6rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── RESPONSIVE ────────────────────────────────── */
+        @media (max-width: 768px) {
+            .barre-app__contenu {
+                flex-wrap: wrap;
+                gap: .5rem;
+            }
+            main { padding: 1.25rem 1rem 2rem; }
+            .page, .hero-accueil { padding: 1.25rem 1.25rem; }
+            .entete-institution {
+                display: grid;
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .logo-texte { justify-self: center; }
+            .table-pro, .edt-officiel { overflow-x: auto; }
+            .table-edt { min-width: 960px; }
+            .dashboard-cartes { grid-template-columns: 1fr; }
+            .formulaire-pro { max-width: 100%; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.35rem; }
+            .bouton { font-size: .82rem; padding: .5rem .9rem; }
+        }
+
+        /* ── PRINT ─────────────────────────────────────── */
+        @media print {
+            body { background: white; }
+            .no-print, .barre-app { display: none !important; }
+            main { margin: 0; max-width: none; padding: 0; }
+            .page, .edt-officiel { box-shadow: none; border: none; padding: 0; }
+            .carte-creneau { background: #f0f0f0; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+    <header class="barre-app no-print">
+        <div class="barre-app__contenu">
+            <a class="marque" href="{% url 'accueil' %}">
+                <span class="sceau">UMa</span>
+                <span>
+                    <strong>Gestion Emploi du Temps</strong>
+                </span>
+            </a>
+            {% if user.is_authenticated %}
+                <div class="meta-utilisateur">
+                    {{ user.prenom }} {{ user.nom }}<br>
+                    <strong>{{ user.get_role_display }}</strong>
+                </div>
+            {% endif %}
+        </div>
+    </header>
+    <main>
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+        {% block contenu %}{% endblock %}
+    </main>
+</body>
+</html>

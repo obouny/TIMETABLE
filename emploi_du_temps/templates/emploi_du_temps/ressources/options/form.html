@@ -1,0 +1,61 @@
+{% extends "emploi_du_temps/base.html" %}
+{% block titre %}{{ action }} option — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-award"></i></div>
+    <div>
+      <h1 class="page-title">{{ action }} une option</h1>
+      <p class="page-sub">
+        {% if action == "Créer" %}Remplissez les informations de la nouvelle option
+        {% else %}Modifiez les informations de l'option{% endif %}
+      </p>
+    </div>
+  </div>
+  <a href="{% url 'option_liste' %}" class="btn btn-secondary">
+    <i class="ti ti-arrow-left"></i> Retour
+  </a>
+</div>
+
+<div class="form-card">
+  <div class="form-card-head">
+    <h2>Informations de l'option</h2>
+    <p>Les champs marqués <span style="color:var(--red)">*</span> sont obligatoires</p>
+  </div>
+  <div class="form-card-body">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label" for="nom">
+          <i class="ti ti-writing" style="color:var(--blue)"></i>
+          Nom de l'option <span class="form-required">*</span>
+        </label>
+        <input class="form-control" type="text" id="nom" name="nom"
+               value="{{ option.nom|default:'' }}"
+               placeholder="Ex : Informatique et Télécommunications" required/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="niveau">
+          <i class="ti ti-stairs" style="color:var(--blue)"></i>
+          Niveau <span class="form-required">*</span>
+        </label>
+        <input class="form-control" type="number" id="niveau" name="niveau"
+               value="{{ option.niveau|default:'' }}"
+               placeholder="Ex : 1, 2, 3..." min="1" max="5" required/>
+        <p class="form-hint">Niveau d'études (1 à 5)</p>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+          <i class="ti {% if action == 'Créer' %}ti-plus{% else %}ti-device-floppy{% endif %}"></i>
+          {% if action == "Créer" %}Créer l'option{% else %}Enregistrer{% endif %}
+        </button>
+        <a href="{% url 'option_liste' %}" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "emploi_du_temps/base.html" %}
+{% block titre %}Salles — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-building"></i></div>
+    <div>
+      <h1 class="page-title">Salles</h1>
+      <p class="page-sub">Gérez les salles et amphithéâtres</p>
+    </div>
+  </div>
+  <a href="{% url 'salle_creer' %}" class="btn btn-success">
+    <i class="ti ti-plus"></i> Nouvelle salle
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Liste des salles</span>
+    <span class="count-pill">{{ salles.count }} au total</span>
+  </div>
+  {% if salles %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Site</th>
+          <th>Capacité</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in salles %}
+        <tr>
+          <td class="td-bold">{{ s.nom }}</td>
+          <td><span class="badge badge-blue">{{ s.site }}</span></td>
+          <td><span class="badge badge-green"><span class="dot"></span>{{ s.capacite }} places</span></td>
+          <td>
+            <div class="td-actions">
+              <a href="{% url 'salle_modifier' s.pk %}" class="btn btn-outline btn-sm">
+                <i class="ti ti-pencil"></i> Modifier
+              </a>
+              <a href="{% url 'salle_supprimer' s.pk %}" class="btn btn-danger-soft btn-sm">
+                <i class="ti ti-trash"></i> Supprimer
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-building"></i></div>
+    <h3 class="empty-title">Aucune salle</h3>
+    <p class="empty-text">Ajoutez les salles et amphithéâtres disponibles.</p>
+    <a href="{% url 'salle_creer' %}" class="btn btn-success">
+      <i class="ti ti-plus"></i> Ajouter une salle
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

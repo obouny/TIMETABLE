@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block titre %}Éditeur tableau - Emploi du temps{% endblock %}
+
+{% block contenu %}
+<section class="edt-officiel">
+    <div class="entete-institution">
+        <div>
+            <strong>République du Cameroun</strong><br>
+            <em>Paix-Travail-Patrie</em><br><br>
+            Ministère de l’Enseignement Supérieur<br>
+            <strong>UNIVERSITÉ DE MAROUA</strong><br>
+            ÉCOLE NATIONALE SUPÉRIEURE POLYTECHNIQUE<br>
+            Département d'Informatique et des Télécommunications
+        </div>
+        <div class="logo-texte">UMa</div>
+        <div>
+            <strong>Republic of Cameroon</strong><br>
+            <em>Peace-Work-Fatherland</em><br><br>
+            Ministry of Higher Education<br>
+            <strong>THE UNIVERSITY OF MAROUA</strong><br>
+            NATIONAL ADVANCED SCHOOL OF ENGINEERING<br>
+            Department of Computer Science and Telecommunications
+        </div>
+    </div>
+
+    <div class="cartouche-edt">
+        <h1>EMPLOI DE TEMPS</h1>
+        <p>Année académique 2025 - 2026 - Semestre I</p>
+        <p>
+            <strong>Site :</strong> à préciser
+            <span><strong>Salle :</strong> selon créneau</span>
+        </p>
+    </div>
+
+    <div class="actions no-print">
+        <a class="bouton" href="{% url 'ajouter_creneau' emploi_du_temps.pk %}">Ajouter un créneau</a>
+        <a class="bouton secondaire" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}">Vue détail</a>
+        <a class="bouton secondaire" href="{% url 'liste_emplois_du_temps' %}">Retour</a>
+    </div>
+
+    <p class="aide no-print">
+        Glissez une carte vers une cellule pour déplacer un créneau. Cliquez sur
+        <strong>Copier</strong>, puis sur <strong>Coller ici</strong> pour dupliquer un créneau.
+    </p>
+
+    <table class="table-edt">
+        <thead>
+            <tr>
+                <th>HORAIRES</th>
+                {% for code_jour, libelle_jour in jours %}
+                    <th>{{ libelle_jour|upper }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in lignes %}
+                {% if ligne.pause %}
+                    <tr>
+                        <th>{{ ligne.plage.label }}</th>
+                        <td class="pause" colspan="6">PAUSE</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <th>{{ ligne.plage.label }}</th>
+                        {% for cellule in ligne.cellules %}
+                            <td class="cellule-edt"
+                                data-jour="{{ cellule.jour }}"
+                                data-plage="{{ cellule.plage.id }}">
+                                {% if cellule.creneau %}
+                                    <article class="carte-creneau"
+                                             draggable="true"
+                                             data-creneau-id="{{ cellule.creneau.pk }}"
+                                             data-move-url="{% url 'deplacer_creneau' cellule.creneau.pk %}"
+                                             data-copy-url="{% url 'copier_creneau' cellule.creneau.pk %}">
+                                        <strong>{{ cellule.creneau.cours.intitule }}</strong><br>
+                                        {{ cellule.creneau.cours.codeCours }}<br>
+                                        <span>(VH: {{ cellule.creneau.cours.volumeHoraire }}h)</span><br>
+                                        <strong class="enseignant">{{ cellule.creneau.enseignant.prenom }} {{ cellule.creneau.enseignant.nom }}</strong><br>
+                                        <small>{{ cellule.creneau.salle.nom }}</small>
+                                        <div class="actions-cellule no-print">
+                                            <a href="{% url 'modifier_creneau' cellule.creneau.pk %}">Modifier</a>
+                                            <button type="button" class="copier" data-creneau-id="{{ cellule.creneau.pk }}">Copier</button>
+                                        </div>
+                                    </article>
+                                {% else %}
+                                    <div class="cellule-vide no-print">
+                                        <a href="{% url 'ajouter_creneau' emploi_du_temps.pk %}?jour={{ cellule.jour }}&plage={{ cellule.plage.id }}">Ajouter</a>
+                                        <button type="button" class="coller">Coller ici</button>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pied-officiel">
+        <p>
+            <strong>NB :</strong> Ce calendrier est dynamique et susceptible d’être modifié,
+            les étudiants sont invités à régulièrement consulter le babillard et le site Web.
+        </p>
+        <strong>Le Directeur,</strong>
+    </div>
+</section>
+
+<script>
+    const csrfToken = "{{ csrf_token }}";
+    let carteDeplacee = null;
+
+    document.querySelectorAll(".carte-creneau").forEach((carte) => {
+        carte.addEventListener("dragstart", () => {
+            carteDeplacee = carte;
+        });
+    });
+
+    document.querySelectorAll(".cellule-edt").forEach((cellule) => {
+        cellule.addEventListener("dragover", (event) => event.preventDefault());
+        cellule.addEventListener("drop", async (event) => {
+            event.preventDefault();
+            if (!carteDeplacee) return;
+            const formData = new FormData();
+            formData.append("jour", cellule.dataset.jour);
+            formData.append("plage", cellule.dataset.plage);
+            const response = await fetch(carteDeplacee.dataset.moveUrl, {
+                method: "POST",
+                headers: {"X-CSRFToken": csrfToken, "X-Requested-With": "XMLHttpRequest"},
+                body: formData,
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                alert(data.message);
+                return;
+            }
+            window.location.reload();
+        });
+    });
+
+    document.querySelectorAll(".copier").forEach((bouton) => {
+        bouton.addEventListener("click", () => {
+            localStorage.setItem("creneauACopier", bouton.dataset.creneauId);
+            alert("Créneau copié. Cliquez maintenant sur une cellule vide puis 'Coller ici'.");
+        });
+    });
+
+    document.querySelectorAll(".coller").forEach((bouton) => {
+        bouton.addEventListener("click", async () => {
+            const cellule = bouton.closest(".cellule-edt");
+            const creneauId = localStorage.getItem("creneauACopier");
+            if (!creneauId) {
+                alert("Aucun créneau copié.");
+                return;
+            }
+            const formData = new FormData();
+            formData.append("jour", cellule.dataset.jour);
+            formData.append("plage", cellule.dataset.plage);
+            const response = await fetch(`/creneaux/${creneauId}/copier/`, {
+                method: "POST",
+                headers: {"X-CSRFToken": csrfToken, "X-Requested-With": "XMLHttpRequest"},
+                body: formData,
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                alert(data.message);
+                return;
+            }
+            window.location.reload();
+        });
+    });
+</script>
+{% endblock %}

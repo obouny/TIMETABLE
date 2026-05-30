@@ -1,0 +1,68 @@
+{% extends "emploi_du_temps/base.html" %}
+{% block titre %}Cours — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-book-2"></i></div>
+    <div>
+      <h1 class="page-title">Cours</h1>
+      <p class="page-sub">Gérez les cours du département</p>
+    </div>
+  </div>
+  <a href="{% url 'cours_creer' %}" class="btn btn-success">
+    <i class="ti ti-plus"></i> Nouveau cours
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Liste des cours</span>
+    <span class="count-pill">{{ cours.count }} au total</span>
+  </div>
+  {% if cours %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Intitulé</th>
+          <th>Volume horaire</th>
+          <th>Option</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in cours %}
+        <tr>
+          <td><span class="badge badge-blue">{{ c.codeCours }}</span></td>
+          <td class="td-bold">{{ c.intitule }}</td>
+          <td><span class="badge badge-orange"><span class="dot"></span>{{ c.volumeHoraire }}h</span></td>
+          <td><span class="badge badge-green">{{ c.option.nom }}</span></td>
+          <td>
+            <div class="td-actions">
+              <a href="{% url 'cours_modifier' c.codeCours %}" class="btn btn-outline btn-sm">
+                <i class="ti ti-pencil"></i> Modifier
+              </a>
+              <a href="{% url 'cours_supprimer' c.codeCours %}" class="btn btn-danger-soft btn-sm">
+                <i class="ti ti-trash"></i> Supprimer
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-book-2"></i></div>
+    <h3 class="empty-title">Aucun cours</h3>
+    <p class="empty-text">Ajoutez les cours dispensés dans le département.</p>
+    <a href="{% url 'cours_creer' %}" class="btn btn-success">
+      <i class="ti ti-plus"></i> Ajouter un cours
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

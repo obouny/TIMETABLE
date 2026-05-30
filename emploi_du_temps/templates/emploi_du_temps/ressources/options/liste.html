@@ -1,0 +1,66 @@
+{% extends "emploi_du_temps/base.html" %}
+{% block titre %}Options — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-award"></i></div>
+    <div>
+      <h1 class="page-title">Options</h1>
+      <p class="page-sub">Gérez les filières du département</p>
+    </div>
+  </div>
+  <a href="{% url 'option_creer' %}" class="btn btn-success">
+    <i class="ti ti-plus"></i> Nouvelle option
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Liste des options (filières)</span>
+    <span class="count-pill">{{ options.count }} au total</span>
+  </div>
+  {% if options %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Niveau</th>
+          <th>Nb cours</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in options %}
+        <tr>
+          <td class="td-bold">{{ o.nom }}</td>
+          <td><span class="badge badge-blue">Niveau {{ o.niveau }}</span></td>
+          <td><span class="badge badge-green"><span class="dot"></span>{{ o.cours.count }} cours</span></td>
+          <td>
+            <div class="td-actions">
+              <a href="{% url 'option_modifier' o.pk %}" class="btn btn-outline btn-sm">
+                <i class="ti ti-pencil"></i> Modifier
+              </a>
+              <a href="{% url 'option_supprimer' o.pk %}" class="btn btn-danger-soft btn-sm">
+                <i class="ti ti-trash"></i> Supprimer
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-award"></i></div>
+    <h3 class="empty-title">Aucune option</h3>
+    <p class="empty-text">Ajoutez les filières proposées par le département.</p>
+    <a href="{% url 'option_creer' %}" class="btn btn-success">
+      <i class="ti ti-plus"></i> Ajouter une option
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

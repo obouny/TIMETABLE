@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block titre %}Détail emploi du temps{% endblock %}
+
+{% block contenu %}
+<section class="page">
+    <div class="page-entete">
+        <span class="badge">{{ emploi_du_temps.get_statut_display }}</span>
+        <h1>Emploi du temps — semaine du {{ emploi_du_temps.semaine }}</h1>
+        <p class="sous-titre">Vue de contrôle avant ouverture de la grille officielle.</p>
+    </div>
+    <div class="meta-grid">
+        <div class="meta-card"><span>Option</span>{{ emploi_du_temps.option }}</div>
+        <div class="meta-card"><span>Statut</span>{{ emploi_du_temps.get_statut_display }}</div>
+        <div class="meta-card"><span>Créé par</span>{{ emploi_du_temps.creePar }}</div>
+    </div>
+    <div class="actions">
+        <a class="bouton" href="{% url 'editeur_emploi_du_temps' emploi_du_temps.pk %}">Ouvrir le tableau officiel</a>
+        <a class="bouton secondaire" href="{% url 'ajouter_creneau' emploi_du_temps.pk %}">Ajouter un créneau</a>
+        <a class="bouton secondaire" href="{% url 'modifier_emploi_du_temps' emploi_du_temps.pk %}">Modifier</a>
+        <a class="bouton secondaire" href="{% url 'supprimer_emploi_du_temps' emploi_du_temps.pk %}">Supprimer</a>
+        {% if emploi_du_temps.statut != "PUBLIE" %}
+            <form method="post" action="{% url 'publier_emploi_du_temps' emploi_du_temps.pk %}">
+                {% csrf_token %}
+                <button class="bouton" type="submit">Publier</button>
+            </form>
+        {% endif %}
+        <a class="bouton secondaire" href="{% url 'liste_emplois_du_temps' %}">Retour</a>
+    </div>
+</section>
+
+<section class="table-pro">
+    <table>
+        <thead>
+            <tr>
+                <th>Jour</th>
+                <th>Horaire</th>
+                <th>Cours</th>
+                <th>Enseignant</th>
+                <th>Salle</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for creneau in emploi_du_temps.creneaux.all %}
+                <tr>
+                    <td>{{ creneau.get_jour_display }}</td>
+                    <td>{{ creneau.heureDebut }} - {{ creneau.heureFin }}</td>
+                    <td>{{ creneau.cours }}</td>
+                    <td>{{ creneau.enseignant }}</td>
+                    <td>{{ creneau.salle }}</td>
+                    <td>
+                        <a href="{% url 'modifier_creneau' creneau.pk %}">Modifier</a> ·
+                        <a href="{% url 'supprimer_creneau' creneau.pk %}">Supprimer</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6">Aucun créneau pour cet emploi du temps.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

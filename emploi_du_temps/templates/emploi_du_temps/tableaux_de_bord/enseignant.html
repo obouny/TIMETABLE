@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block titre %}Tableau de bord enseignant{% endblock %}
+
+{% block contenu %}
+<section class="page">
+    <div class="page-entete">
+        <span class="badge">Lecture seule</span>
+        <h1>Tableau de bord enseignant</h1>
+        <p class="sous-titre">Vous avez un accès en lecture seule et consultez uniquement les emplois du temps publiés par le Chef de département.</p>
+    </div>
+    <div class="actions">
+        <a class="bouton secondaire" href="{% url 'logout' %}">Se déconnecter</a>
+    </div>
+</section>
+{% endblock %}

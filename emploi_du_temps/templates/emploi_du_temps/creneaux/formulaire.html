@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block titre %}{{ titre }}{% endblock %}
+
+{% block contenu %}
+<section class="page formulaire-pro">
+    <div class="page-entete">
+        <span class="badge">Créneau</span>
+        <h1>{{ titre }}</h1>
+        <p class="sous-titre">Semaine du {{ emploi_du_temps.semaine }} — {{ emploi_du_temps.option }}</p>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+        {% endfor %}
+        <div class="actions">
+            <button class="bouton" type="submit">Enregistrer</button>
+            <a class="bouton secondaire" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}">Annuler</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
