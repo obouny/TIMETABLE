@@ -8,6 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('emploi_du_temps', '0002_alter_cours_options'),
         ('emploi_du_temps', '0002_alter_cours_volumehoraire'),
     ]
 

@@ -1,8 +1,98 @@
 from django import forms
+from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 
-from .models import Cours, Creneau, EmploiDuTemps, Salle, Utilisateur
+from .models import Cours, Creneau, EmploiDuTemps, Option, Salle, Utilisateur
 from .grille import PLAGES_HORAIRES, JOURS_EDT, trouver_plage
+
+
+class UtilisateurRoleCreationForm(forms.ModelForm):
+    """Création d'un utilisateur métier avec rôle imposé par la vue."""
+
+    password = forms.CharField(
+        label="Mot de passe",
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+    )
+
+    class Meta:
+        model = Utilisateur
+        fields = ["nom", "prenom", "email", "username", "option"]
+
+    def __init__(self, *args, role: str, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.role = role
+        self.fields["option"].queryset = Option.objects.all()
+        self.fields["option"].required = role == Utilisateur.Role.ETUDIANT
+        if role != Utilisateur.Role.ETUDIANT:
+            self.fields.pop("option")
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
+
+    def clean_password(self):
+        password = self.cleaned_data.get("password")
+        if password:
+            password_validation.validate_password(password, self.instance)
+        return password
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip()
+        if Utilisateur.objects.filter(email__iexact=email).exists():
+            raise ValidationError("Cet email est déjà utilisé.")
+        return email
+
+    def clean_username(self):
+        username = self.cleaned_data["username"].strip()
+        if Utilisateur.objects.filter(username__iexact=username).exists():
+            raise ValidationError("Ce nom d'utilisateur est déjà pris.")
+        return username
+
+    def save(self, commit=True):
+        utilisateur = super().save(commit=False)
+        utilisateur.role = self.role
+        if self.role != Utilisateur.Role.ETUDIANT:
+            utilisateur.option = None
+        utilisateur.set_password(self.cleaned_data["password"])
+        if commit:
+            utilisateur.full_clean()
+            utilisateur.save()
+        return utilisateur
+
+
+class UtilisateurRoleModificationForm(forms.ModelForm):
+    """Modification des informations métier d'un utilisateur sans changer son rôle."""
+
+    class Meta:
+        model = Utilisateur
+        fields = ["nom", "prenom", "email", "option", "is_active"]
+
+    def __init__(self, *args, role: str, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.role = role
+        self.fields["option"].queryset = Option.objects.all()
+        self.fields["option"].required = role == Utilisateur.Role.ETUDIANT
+        if role != Utilisateur.Role.ETUDIANT:
+            self.fields.pop("option")
+        self.fields["is_active"].required = False
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip()
+        qs = Utilisateur.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError("Cet email est déjà utilisé.")
+        return email
+
+    def save(self, commit=True):
+        utilisateur = super().save(commit=False)
+        utilisateur.role = self.role
+        if self.role != Utilisateur.Role.ETUDIANT:
+            utilisateur.option = None
+        if commit:
+            utilisateur.full_clean()
+            utilisateur.save()
+        return utilisateur
 
 
 class EmploiDuTempsForm(forms.ModelForm):

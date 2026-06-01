@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titre %}{{ action }} {{ label|lower }} — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="ti {% if action == 'Créer' %}ti-user-plus{% else %}ti-user-edit{% endif %}"></i>
+    </div>
+    <div>
+      <h1 class="page-title">{{ action }} un {{ label|lower }}</h1>
+      <p class="page-sub">Gérez les informations d'identité, de connexion et de rôle.</p>
+    </div>
+  </div>
+  <a href="{% if label == 'Étudiant' %}{% url 'etudiant_liste' %}{% else %}{% url 'enseignant_liste' %}{% endif %}" class="btn btn-secondary">
+    <i class="ti ti-arrow-left"></i> Retour
+  </a>
+</div>
+
+<div class="form-card">
+  <div class="form-card-head">
+    <h2>Informations utilisateur</h2>
+    <p>Les champs obligatoires sont contrôlés côté serveur.</p>
+  </div>
+  <div class="form-card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="form-errors">{{ form.non_field_errors|join:", " }}</div>
+      {% endif %}
+
+      {% for field in form %}
+      <div class="form-group">
+        <label class="form-label" for="{{ field.id_for_label }}">
+          {{ field.label }}{% if field.field.required %} <span class="form-required">*</span>{% endif %}
+        </label>
+        {{ field }}
+        {% if field.help_text %}<p class="form-hint">{{ field.help_text }}</p>{% endif %}
+        {% if field.errors %}<div class="field-errors">{{ field.errors|join:", " }}</div>{% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+          <i class="ti {% if action == 'Créer' %}ti-user-plus{% else %}ti-device-floppy{% endif %}"></i>
+          {% if action == "Créer" %}Créer{% else %}Enregistrer{% endif %}
+        </button>
+        <a href="{% if label == 'Étudiant' %}{% url 'etudiant_liste' %}{% else %}{% url 'enseignant_liste' %}{% endif %}" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

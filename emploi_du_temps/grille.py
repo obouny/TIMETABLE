@@ -56,11 +56,24 @@ def construire_grille(emploi_du_temps: EmploiDuTemps) -> list[dict]:
 def construire_grille_semaine(
     semaine: date,
     salle_id: int | None = None,
+    utilisateur=None,
 ) -> list[dict]:
-    """Grille hebdomadaire d'une salle donnée."""
+    """Grille hebdomadaire d'une salle donnée, filtrée selon le rôle utilisateur."""
     qs = Creneau.objects.filter(
         emploiDuTemps__semaine=semaine,
     ).select_related("cours", "enseignant", "salle", "option", "emploiDuTemps")
+
+    if utilisateur and utilisateur.is_authenticated:
+        if utilisateur.role == utilisateur.Role.ENSEIGNANT:
+            qs = qs.filter(emploiDuTemps__statut=EmploiDuTemps.Statut.PUBLIE, enseignant=utilisateur)
+        elif utilisateur.role == utilisateur.Role.ETUDIANT:
+            qs = qs.filter(emploiDuTemps__statut=EmploiDuTemps.Statut.PUBLIE)
+            if utilisateur.option_id:
+                qs = qs.filter(option=utilisateur.option)
+            else:
+                qs = qs.none()
+        elif utilisateur.role != utilisateur.Role.CD:
+            qs = qs.none()
 
     if salle_id:
         qs = qs.filter(salle_id=salle_id)

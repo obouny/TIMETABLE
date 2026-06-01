@@ -19,13 +19,13 @@ from .models import (
 class UtilisateurAdmin(UserAdmin):
 
     fieldsets = UserAdmin.fieldsets + (
-        ("Informations métier", {"fields": ("nom", "prenom", "role")}),
+        ("Informations métier", {"fields": ("nom", "prenom", "role", "option")}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ("Informations métier", {"fields": ("email", "nom", "prenom", "role")}),
+        ("Informations métier", {"fields": ("email", "nom", "prenom", "role", "option")}),
     )
-    list_display = ("username", "email", "nom", "prenom", "role", "is_staff")
-    list_filter = ("role", "is_staff", "is_superuser", "is_active")
+    list_display = ("username", "email", "nom", "prenom", "role", "option", "is_staff")
+    list_filter = ("role", "option", "is_staff", "is_superuser", "is_active")
     search_fields = ("username", "email", "nom", "prenom")
 
 

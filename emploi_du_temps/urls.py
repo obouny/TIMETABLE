@@ -39,6 +39,11 @@ urlpatterns = [
     path("enseignants/<int:pk>/modifier/", views.enseignant_modifier, name="enseignant_modifier"),
     path("enseignants/<int:pk>/supprimer/", views.enseignant_supprimer, name="enseignant_supprimer"),
 
+    path("etudiants/", views.etudiant_liste, name="etudiant_liste"),
+    path("etudiants/nouveau/", views.etudiant_creer, name="etudiant_creer"),
+    path("etudiants/<int:pk>/modifier/", views.etudiant_modifier, name="etudiant_modifier"),
+    path("etudiants/<int:pk>/supprimer/", views.etudiant_supprimer, name="etudiant_supprimer"),
+
     path("cours/", views.cours_liste, name="cours_liste"),
     path("cours/nouveau/", views.cours_creer, name="cours_creer"),
     path("cours/<str:pk>/modifier/", views.cours_modifier, name="cours_modifier"),

@@ -62,6 +62,7 @@ body{
 }
 .user-name{font-size:13px;font-weight:600;color:var(--gray-700)}
 .user-role{font-size:10px;color:var(--gray-400);font-weight:500}
+.logout-form{margin:0}
 .btn-logout{
   display:flex;align-items:center;gap:6px;
   background:var(--red-light);color:var(--red);
@@ -400,9 +401,12 @@ tbody td{padding:13px 18px;color:var(--gray-700);vertical-align:middle}
         <div class="user-role">{{ user.get_role_display }}</div>
       </div>
     </div>
-    <a href="{% url 'logout' %}" class="btn-logout">
-      <i class="ti ti-logout" aria-hidden="true"></i> Déconnexion
-    </a>
+    <form method="post" action="{% url 'logout' %}" class="logout-form">
+      {% csrf_token %}
+      <button type="submit" class="btn-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i> Déconnexion
+      </button>
+    </form>
   </div>
   {% endif %}
 </nav>
@@ -414,9 +418,13 @@ tbody td{padding:13px 18px;color:var(--gray-700);vertical-align:middle}
     <a href="{% url 'tableau_de_bord' %}" class="nav-link {% if request.resolver_match.url_name == 'tableau_de_bord' %}active{% endif %}">
       <i class="ti ti-layout-dashboard" aria-hidden="true"></i> Tableau de bord
     </a>
+    {% if user.role == "CD" %}
     <span class="nav-section">Ressources</span>
     <a href="{% url 'enseignant_liste' %}" class="nav-link {% if 'enseignant' in request.resolver_match.url_name %}active{% endif %}">
       <i class="ti ti-users" aria-hidden="true"></i> Enseignants
+    </a>
+    <a href="{% url 'etudiant_liste' %}" class="nav-link {% if 'etudiant' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="ti ti-user-school" aria-hidden="true"></i> Étudiants
     </a>
     <a href="{% url 'cours_liste' %}" class="nav-link {% if 'cours' in request.resolver_match.url_name %}active{% endif %}">
       <i class="ti ti-book-2" aria-hidden="true"></i> Cours
@@ -427,6 +435,7 @@ tbody td{padding:13px 18px;color:var(--gray-700);vertical-align:middle}
     <a href="{% url 'option_liste' %}" class="nav-link {% if 'option' in request.resolver_match.url_name %}active{% endif %}">
       <i class="ti ti-award" aria-hidden="true"></i> Options
     </a>
+    {% endif %}
     <span class="nav-section">Planification</span>
     <a href="{% url 'grille_edt' %}" class="nav-link {% if 'grille_edt' in request.resolver_match.url_name or 'ajouter_creneau_grille' in request.resolver_match.url_name or 'modifier_creneau_grille' in request.resolver_match.url_name %}active{% endif %}">
       <i class="ti ti-calendar-week" aria-hidden="true"></i> Emplois du temps
