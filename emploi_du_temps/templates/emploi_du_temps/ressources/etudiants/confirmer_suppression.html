@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titre %}Supprimer étudiant — EDT ENSPM{% endblock %}
+{% block contenu %}
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-trash"></i></div>
+    <div>
+      <h1 class="page-title">Supprimer un étudiant</h1>
+      <p class="page-sub">Cette action est définitive.</p>
+    </div>
+  </div>
+</div>
+<div class="form-card">
+  <div class="form-card-body">
+    <p>Confirmez-vous la suppression de <strong>{{ etudiant.nom }} {{ etudiant.prenom }}</strong> ?</p>
+    <form method="post" class="form-actions" style="margin-top:18px;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger-soft"><i class="ti ti-trash"></i> Supprimer</button>
+      <a href="{% url 'etudiant_liste' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

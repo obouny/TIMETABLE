@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block titre %}Étudiants — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-user-school"></i></div>
+    <div>
+      <h1 class="page-title">Étudiants</h1>
+      <p class="page-sub">Gérez les étudiants et leur rattachement aux options</p>
+    </div>
+  </div>
+  <a href="{% url 'etudiant_creer' %}" class="btn btn-success">
+    <i class="ti ti-plus"></i> Nouvel étudiant
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Liste des étudiants</span>
+    <span class="count-pill">{{ etudiants.count }} au total</span>
+  </div>
+  {% if etudiants %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom complet</th>
+          <th>Identifiant</th>
+          <th>Email</th>
+          <th>Option</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in etudiants %}
+        <tr>
+          <td class="td-bold">{{ e.nom }} {{ e.prenom }}</td>
+          <td><span class="badge badge-gray">{{ e.username }}</span></td>
+          <td class="td-muted">{{ e.email }}</td>
+          <td>{{ e.option|default:"Non rattaché" }}</td>
+          <td>
+            {% if e.is_active %}
+              <span class="badge badge-green"><span class="dot"></span>Actif</span>
+            {% else %}
+              <span class="badge badge-gray"><span class="dot"></span>Inactif</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="td-actions">
+              <a href="{% url 'etudiant_modifier' e.pk %}" class="btn btn-outline btn-sm">
+                <i class="ti ti-pencil"></i> Modifier
+              </a>
+              <a href="{% url 'etudiant_supprimer' e.pk %}" class="btn btn-danger-soft btn-sm">
+                <i class="ti ti-trash"></i> Supprimer
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-user-school"></i></div>
+    <h3 class="empty-title">Aucun étudiant</h3>
+    <p class="empty-text">Commencez par ajouter les étudiants et les rattacher à leurs options.</p>
+    <a href="{% url 'etudiant_creer' %}" class="btn btn-success">
+      <i class="ti ti-plus"></i> Ajouter un étudiant
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

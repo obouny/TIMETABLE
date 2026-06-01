@@ -18,6 +18,14 @@ class Utilisateur(AbstractUser):
     nom = models.CharField(max_length=150)
     prenom = models.CharField(max_length=150)
     role = models.CharField(max_length=20, choices=Role.choices)
+    option = models.ForeignKey(
+        "Option",
+        on_delete=models.PROTECT,
+        related_name="etudiants",
+        verbose_name="option de l’étudiant",
+        null=True,
+        blank=True,
+    )
 
     REQUIRED_FIELDS = ["email", "nom", "role"]
 
@@ -27,8 +35,20 @@ class Utilisateur(AbstractUser):
     def seDeconnecter(self) -> None:
         return None
 
+    def clean(self) -> None:
+        super().clean()
+        if self.role != self.Role.ETUDIANT and self.option_id:
+            raise ValidationError(
+                "Seuls les utilisateurs étudiants peuvent être rattachés à une option."
+            )
+
     def consulterEmploiDuTemps(self):
-        return EmploiDuTemps.objects.filter(statut=EmploiDuTemps.Statut.PUBLIE)
+        emplois = EmploiDuTemps.objects.filter(statut=EmploiDuTemps.Statut.PUBLIE)
+        if self.role == self.Role.ENSEIGNANT:
+            return emplois.filter(creneaux__enseignant=self).distinct()
+        if self.role == self.Role.ETUDIANT and self.option_id:
+            return emplois.filter(creneaux__option=self.option).distinct()
+        return emplois
 
     def __str__(self) -> str:
         return f"{self.nom} {self.prenom} ({self.get_role_display()})"

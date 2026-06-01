@@ -46,16 +46,16 @@
 <div class="card">
   <div class="card-head">
     <span class="card-head-title">Créneaux planifiés</span>
-    <span class="count-pill">{{ emploi_du_temps.creneaux.count }} au total</span>
+    <span class="count-pill">{{ creneaux_visibles.count }} au total</span>
   </div>
-  {% if emploi_du_temps.creneaux.all %}
+  {% if creneaux_visibles %}
   <div class="table-wrap">
     <table>
       <thead>
         <tr><th>Jour</th><th>Horaire</th><th>Cours</th><th>Option</th><th>Enseignant</th><th>Salle</th>{% if est_cd %}<th>Actions</th>{% endif %}</tr>
       </thead>
       <tbody>
-        {% for creneau in emploi_du_temps.creneaux.all %}
+        {% for creneau in creneaux_visibles %}
         <tr>
           <td class="td-bold">{{ creneau.get_jour_display }}</td>
           <td>{{ creneau.heureDebut }} - {{ creneau.heureFin }}</td>
