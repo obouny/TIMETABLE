@@ -1,36 +1,120 @@
-{% extends "emploi_du_temps/base.html" %}
-
+{% extends "base.html" %}
 {% block titre %}Accueil — EDT ENSPM{% endblock %}
+{% block body_class %}public-page{% endblock %}
 
 {% block contenu %}
-<div class="public-shell">
-  <section class="hero-card">
-    <div class="hero-copy">
-      <span class="hero-kicker"><i class="ti ti-school"></i> ENSPM — Université de Maroua</span>
-      <h1 class="hero-title">Gestion centralisée des emplois du temps</h1>
-      <p class="hero-text">
-        Une plateforme unique pour gérer les ressources, préparer les grilles officielles,
-        publier les emplois du temps validés et permettre la consultation par les enseignants
-        et les étudiants.
-      </p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="{% url 'login' %}"><i class="ti ti-login"></i> Se connecter</a>
-      </div>
+<style>
+  .public-page .main-content {
+    padding: 0 !important;
+    background: #f8fafc !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: calc(100vh - 56px);
+  }
+
+  .accueil-shell {
+    max-width: 860px;
+    width: 100%;
+    margin: 40px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── HERO ── */
+  .accueil-hero {
+    background: #fff;
+    border: 1px solid #D9E2FF;
+    border-radius: 20px;
+    padding: 44px 52px;
+    text-align: center;
+  }
+
+  .accueil-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #EFF6FF; color: #2563EB;
+    border: 1px solid #BFDBFE; border-radius: 999px;
+    padding: 5px 16px; font-size: 12px; font-weight: 700;
+    margin-bottom: 22px;
+    text-transform: uppercase; letter-spacing: .6px;
+  }
+
+  .accueil-title {
+    font-size: 36px; font-weight: 800;
+    color: #0F172A; line-height: 1.1;
+    letter-spacing: -.8px; margin-bottom: 14px;
+  }
+  .accueil-title span { color: #2563EB; }
+
+  .accueil-subtitle {
+    font-size: 15px; color: #64748B;
+    line-height: 1.7; max-width: 480px;
+    margin: 0 auto 32px;
+  }
+
+  .accueil-actions {
+    display: flex; gap: 12px;
+    justify-content: center; flex-wrap: wrap;
+  }
+
+  .btn-hero-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 28px;
+    background: #2563EB; color: #fff;
+    border-radius: 12px; border: none;
+    font-size: 14px; font-weight: 700;
+    text-decoration: none; cursor: pointer;
+    transition: all .18s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-hero-primary:hover {
+    background: #1D4ED8;
+  }
+
+  .btn-hero-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 28px;
+    background: #fff; color: #2563EB;
+    border-radius: 12px;
+    border: 2px solid #BFDBFE;
+    font-size: 14px; font-weight: 700;
+    text-decoration: none; cursor: pointer;
+    transition: all .18s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-hero-secondary:hover {
+    background: #EFF6FF;
+    border-color: #2563EB;
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 680px) {
+    .accueil-hero { padding: 32px 24px; }
+    .accueil-title { font-size: 26px; }
+    .accueil-shell { margin: 20px 12px; }
+  }
+</style>
+
+<div class="accueil-shell">
+
+  <!-- HERO -->
+  <div class="accueil-hero">
+    <span class="accueil-badge">
+      <i class="ti ti-calendar-event" aria-hidden="true"></i>
+      Gestion des emplois du temps
+    </span>
+    <h1 class="accueil-title">EDT <span>ENSPM</span></h1>
+    <p class="accueil-subtitle">
+      Planification des cours de l'École Nationale Supérieure Polytechnique de Maroua.
+      Gérez créneaux, enseignants, salles et emplois du temps en un seul endroit.
+    </p>
+    <div class="accueil-actions">
+      <a href="{% url 'login' %}" class="btn-hero-primary">
+        <i class="ti ti-login" aria-hidden="true"></i>
+        Se connecter
+      </a>
     </div>
-    <div class="hero-panel">
-      <div class="hero-panel-item">
-        <strong>Ressources</strong>
-        <span>Enseignants, cours, salles et options dans le même espace.</span>
-      </div>
-      <div class="hero-panel-item">
-        <strong>Planification</strong>
-        <span>Création de brouillons, grille officielle, glisser-déposer et publication.</span>
-      </div>
-      <div class="hero-panel-item">
-        <strong>Consultation</strong>
-        <span>Accès par rôle aux emplois du temps publiés.</span>
-      </div>
-    </div>
-  </section>
+  </div>
 </div>
 {% endblock %}

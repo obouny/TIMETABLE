@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 
 {% block titre %}Emplois du temps — EDT ENSPM{% endblock %}
 
@@ -23,13 +23,13 @@
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Semaine</th><th>Option</th><th>Statut</th><th>Créé par</th><th>Actions</th></tr>
+        <tr><th>Semaine</th><th>Périmètre</th><th>Statut</th><th>Créé par</th><th>Actions</th></tr>
       </thead>
       <tbody>
         {% for emploi in emplois_du_temps %}
         <tr>
           <td class="td-bold">{{ emploi.semaine }}</td>
-          <td>{{ emploi.option }}</td>
+          <td>Département</td>
           <td>
             {% if emploi.statut == "PUBLIE" %}
               <span class="badge badge-green"><span class="dot"></span>{{ emploi.get_statut_display }}</span>

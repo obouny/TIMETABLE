@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 
 {% block titre %}Détail emploi du temps — EDT ENSPM{% endblock %}
 
@@ -8,7 +8,7 @@
     <div class="page-icon"><i class="ti ti-calendar-stats"></i></div>
     <div>
       <h1 class="page-title">Semaine du {{ emploi_du_temps.semaine }}</h1>
-      <p class="page-sub">{{ emploi_du_temps.option }} — créé par {{ emploi_du_temps.creePar }}</p>
+      <p class="page-sub">Emploi du temps global — créé par {{ emploi_du_temps.creePar }}</p>
     </div>
   </div>
   <div class="td-actions">
@@ -20,7 +20,7 @@
 </div>
 
 <div class="readonly-grid">
-  <div class="readonly-card"><span>Option</span><strong>{{ emploi_du_temps.option }}</strong></div>
+  <div class="readonly-card"><span>Périmètre</span><strong>Département</strong></div>
   <div class="readonly-card"><span>Statut</span><strong>{{ emploi_du_temps.get_statut_display }}</strong></div>
   <div class="readonly-card"><span>Publication</span><strong>{{ emploi_du_temps.datePublication|default:"Non publié" }}</strong></div>
 </div>
@@ -52,7 +52,7 @@
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Jour</th><th>Horaire</th><th>Cours</th><th>Enseignant</th><th>Salle</th>{% if est_cd %}<th>Actions</th>{% endif %}</tr>
+        <tr><th>Jour</th><th>Horaire</th><th>Cours</th><th>Option</th><th>Enseignant</th><th>Salle</th>{% if est_cd %}<th>Actions</th>{% endif %}</tr>
       </thead>
       <tbody>
         {% for creneau in emploi_du_temps.creneaux.all %}
@@ -60,6 +60,7 @@
           <td class="td-bold">{{ creneau.get_jour_display }}</td>
           <td>{{ creneau.heureDebut }} - {{ creneau.heureFin }}</td>
           <td>{{ creneau.cours }}</td>
+          <td>{{ creneau.option }}</td>
           <td>{{ creneau.enseignant }}</td>
           <td>{{ creneau.salle }}</td>
           {% if est_cd %}

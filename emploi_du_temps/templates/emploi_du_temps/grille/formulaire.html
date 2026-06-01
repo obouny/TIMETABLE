@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block titre %}{{ titre }} — EDT ENSPM{% endblock %}
+
+{% block contenu %}
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-calendar-plus"></i></div>
+    <div>
+      <h1 class="page-title">{{ titre }}</h1>
+      <p class="page-sub">Semaine du {{ semaine|date:"d/m/Y" }}</p>
+    </div>
+  </div>
+  <a class="btn btn-secondary" href="{% url 'grille_edt_semaine' semaine|date:'Y-m-d' %}">
+    <i class="ti ti-arrow-left"></i> Retour à la grille
+  </a>
+</div>
+
+<!-- Conflits AJAX -->
+<div id="conflitsBox" class="alert alert-error" style="display:none;">
+  <i class="ti ti-alert-triangle"></i>
+  <strong>Conflits détectés :</strong>
+  <ul id="conflitsListe" style="margin:.5rem 0 0 1rem;padding:0;"></ul>
+</div>
+
+<div class="form-card">
+  <div class="form-card-head">
+    <h2>Informations du créneau</h2>
+    <p>Les conflits de salle, enseignant et option du cours sont contrôlés automatiquement.</p>
+  </div>
+  <div class="form-card-body">
+    <form id="formCreneau" method="post">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="form-errors">
+        {% for err in form.non_field_errors %}<div>{{ err }}</div>{% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Semaine -->
+      <div class="form-group">
+        <label class="form-label">Semaine <span class="form-required">*</span></label>
+        <input type="date" name="semaine" class="form-control" value="{% if form.semaine.value %}{{ form.semaine.value|date:'Y-m-d'|default:form.semaine.value }}{% else %}{{ semaine|date:'Y-m-d' }}{% endif %}" required>
+        <div class="form-hint">Indiquez le lundi de la semaine concernée.</div>
+        {% if form.semaine.errors %}<div class="field-errors">{{ form.semaine.errors }}</div>{% endif %}
+      </div>
+
+      <div class="form-row">
+        <!-- Cours -->
+        <div class="form-group">
+          <label class="form-label">Cours <span class="form-required">*</span></label>
+          <select name="cours" id="selectCours" class="form-control" required>
+            <option value="">— Sélectionner —</option>
+            {% for c in form.cours.field.queryset %}
+            <option value="{{ c.codeCours }}" data-option="{{ c.option_id }}"
+              {% if form.cours.value == c.codeCours %}selected{% endif %}>
+              {{ c.intitule }} ({{ c.codeCours }}) — {{ c.option.nom }}
+            </option>
+            {% endfor %}
+          </select>
+          {% if form.cours.errors %}<div class="field-errors">{{ form.cours.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Enseignant -->
+        <div class="form-group">
+          <label class="form-label">Enseignant <span class="form-required">*</span></label>
+          <select name="enseignant" id="selectEnseignant" class="form-control" required>
+            <option value="">— Sélectionner —</option>
+            {% for e in form.enseignant.field.queryset %}
+            <option value="{{ e.pk }}" {% if form.enseignant.value|stringformat:"s" == e.pk|stringformat:"s" %}selected{% endif %}>
+              {{ e.prenom }} {{ e.nom }}
+            </option>
+            {% endfor %}
+          </select>
+          {% if form.enseignant.errors %}<div class="field-errors">{{ form.enseignant.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Salle -->
+        <div class="form-group">
+          <label class="form-label">Salle <span class="form-required">*</span></label>
+          <select name="salle" id="selectSalle" class="form-control" required>
+            <option value="">— Sélectionner —</option>
+            {% for s in form.salle.field.queryset %}
+            <option value="{{ s.pk }}" {% if form.salle.value|stringformat:"s" == s.pk|stringformat:"s" %}selected{% endif %}>
+              {{ s.nom }} (cap. {{ s.capacite }})
+            </option>
+            {% endfor %}
+          </select>
+          {% if form.salle.errors %}<div class="field-errors">{{ form.salle.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Jour -->
+        <div class="form-group">
+          <label class="form-label">Jour <span class="form-required">*</span></label>
+          <select name="jour" id="selectJour" class="form-control" required>
+            <option value="">— Sélectionner —</option>
+            {% for code, label in jours %}
+            <option value="{{ code }}" {% if form.jour.value == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          {% if form.jour.errors %}<div class="field-errors">{{ form.jour.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Créneau horaire -->
+        <div class="form-group">
+          <label class="form-label">Créneau horaire <span class="form-required">*</span></label>
+          <select name="plage" id="selectPlage" class="form-control" required>
+            <option value="">— Sélectionner —</option>
+            {% for plage in plages %}
+            {% if not plage.pause %}
+            <option value="{{ plage.id }}" {% if form.plage.value == plage.id %}selected{% endif %}>{{ plage.label }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+          {% if form.plage.errors %}<div class="field-errors">{{ form.plage.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" id="btnSubmit" class="btn btn-success">
+          <i class="ti ti-device-floppy"></i> Enregistrer
+        </button>
+        <a class="btn btn-secondary" href="{% url 'grille_edt_semaine' semaine|date:'Y-m-d' %}">Annuler</a>
+        <button type="button" id="btnVerifier" class="btn btn-outline" style="margin-left:auto;">
+          <i class="ti ti-shield-check"></i> Vérifier les conflits
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const CSRF = "{{ csrf_token }}";
+const AJAX_URL = "{% url 'ajax_conflits' %}";
+// ── Vérification AJAX conflits ───────────────────────────────────────────────
+async function verifierConflits(manualClick = false) {
+  const semaine    = document.querySelector('[name=semaine]').value;
+  const cours      = document.getElementById('selectCours').value;
+  const enseignant = document.getElementById('selectEnseignant').value;
+  const salle      = document.getElementById('selectSalle').value;
+  const jour       = document.getElementById('selectJour').value;
+  const plage      = document.getElementById('selectPlage').value;
+  const excludeId  = "{% if creneau %}{{ creneau.pk }}{% endif %}";
+
+  if (!semaine || !jour || !plage) return 0;
+
+  const body = new URLSearchParams({ semaine, cours_id: cours, enseignant_id: enseignant,
+    salle_id: salle, jour, plage, exclude_id: excludeId });
+
+  const res  = await fetch(AJAX_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': CSRF },
+    body,
+  });
+  const json = await res.json();
+
+  const box   = document.getElementById('conflitsBox');
+  const liste = document.getElementById('conflitsListe');
+  const btn   = document.getElementById('btnSubmit');
+  liste.innerHTML = '';
+
+  if (json.count > 0) {
+    json.conflits.forEach(c => {
+      const li = document.createElement('li');
+      li.textContent = c.message;
+      liste.appendChild(li);
+    });
+    box.style.display = '';
+    btn.disabled = true;
+    btn.title = 'Résolvez les conflits avant d\'enregistrer.';
+  } else {
+    if (manualClick) {
+      liste.innerHTML = '<li>✅ Aucun conflit détecté.</li>';
+      box.className = 'alert alert-success';
+      box.style.display = '';
+    } else {
+      box.style.display = 'none';
+    }
+    btn.disabled = false;
+    btn.title = '';
+  }
+  return json.count;
+}
+
+['selectCours','selectEnseignant','selectSalle','selectJour','selectPlage'].forEach(id => {
+  document.getElementById(id)?.addEventListener('change', () => verifierConflits());
+});
+
+document.getElementById('btnVerifier').addEventListener('click', async function() {
+  this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Vérification...';
+  await verifierConflits(true);
+  this.innerHTML = '<i class="ti ti-shield-check"></i> Vérifier les conflits';
+});
+
+document.getElementById('formCreneau').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const count = await verifierConflits();
+  if (count === 0) this.submit();
+});
+</script>
+
+{% endblock %}

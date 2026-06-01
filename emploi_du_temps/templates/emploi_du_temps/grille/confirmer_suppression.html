@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titre %}Supprimer le créneau — EDT ENSPM{% endblock %}
+
+{% block contenu %}
+<div class="confirm-card">
+  <div class="confirm-head">
+    <div class="confirm-ico-wrap">
+      <i class="ti ti-trash"></i>
+    </div>
+    <div class="confirm-title">Supprimer ce créneau ?</div>
+    <div class="confirm-text">
+      <strong>{{ creneau.cours.intitule }}</strong> ({{ creneau.cours.codeCours }})<br>
+      {{ creneau.get_jour_display }} — {{ creneau.heureDebut|time:"H\\Hi" }} à {{ creneau.heureFin|time:"H\\Hi" }}<br>
+      Enseignant : {{ creneau.enseignant.prenom }} {{ creneau.enseignant.nom }}<br>
+      Salle : {{ creneau.salle.nom }}<br>
+      Option : {{ creneau.option.nom }}
+    </div>
+  </div>
+  <div class="confirm-foot">
+    <a class="btn btn-secondary" href="{% url 'grille_edt_semaine' semaine|date:'Y-m-d' %}">Annuler</a>
+    <form method="post" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger-soft">
+        <i class="ti ti-trash"></i> Supprimer définitivement
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
