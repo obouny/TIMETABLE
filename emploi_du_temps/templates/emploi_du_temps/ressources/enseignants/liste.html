@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 {% block titre %}Enseignants — EDT ENSPM{% endblock %}
 {% block contenu %}
 
@@ -35,7 +35,7 @@
       <tbody>
         {% for e in enseignants %}
         <tr>
-          <td class="td-bold">{{ e.prenom }} {{ e.nom }}</td>
+          <td class="td-bold">{{ e.nom }} {{ e.prenom }}</td>
           <td><span class="badge badge-gray">{{ e.username }}</span></td>
           <td class="td-muted">{{ e.email }}</td>
           <td>

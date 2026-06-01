@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 
 {% block titre %}{{ titre }} — EDT ENSPM{% endblock %}
 
@@ -8,7 +8,7 @@
     <div class="page-icon"><i class="ti ti-calendar-plus"></i></div>
     <div>
       <h1 class="page-title">{{ titre }}</h1>
-      <p class="page-sub">Définissez la semaine et l'option, puis ajoutez les créneaux sur la grille officielle.</p>
+      <p class="page-sub">Définissez la semaine, puis ajoutez les créneaux sur la grille officielle.</p>
     </div>
   </div>
   <a class="btn btn-secondary" href="{% url 'liste_emplois_du_temps' %}"><i class="ti ti-arrow-left"></i> Retour</a>

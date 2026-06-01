@@ -31,7 +31,7 @@ class Utilisateur(AbstractUser):
         return EmploiDuTemps.objects.filter(statut=EmploiDuTemps.Statut.PUBLIE)
 
     def __str__(self) -> str:
-        return f"{self.prenom} {self.nom} ({self.get_role_display()})"
+        return f"{self.nom} {self.prenom} ({self.get_role_display()})"
 
 
 class CD(Utilisateur):
@@ -81,7 +81,7 @@ class Option(models.Model):
 class Cours(models.Model):
     codeCours = models.CharField("code du cours", max_length=30, primary_key=True)
     intitule = models.CharField("intitulé", max_length=200)
-    volumeHoraire = models.PositiveIntegerField("volume horaire")
+    volumeHoraire = models.CharField("volume horaire", max_length=100, blank=True)
     option = models.ForeignKey(
         Option,
         on_delete=models.PROTECT,
@@ -127,9 +127,6 @@ class EmploiDuTemps(models.Model):
     statut = models.CharField(
         max_length=20, choices=Statut.choices, default=Statut.BROUILLON
     )
-    option = models.ForeignKey(
-        Option, on_delete=models.PROTECT, related_name="emploisDuTemps"
-    )
     creePar = models.ForeignKey(
         Utilisateur, on_delete=models.PROTECT, related_name="emploisDuTempsCrees"
     )
@@ -138,14 +135,8 @@ class EmploiDuTemps(models.Model):
     datePublication = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ["-semaine", "option__niveau", "option__nom"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["semaine", "option"],
-                condition=Q(statut="PUBLIE"),
-                name="emploi_publie_unique_par_semaine_option",
-            ),
-        ]
+        ordering = ["-semaine"]
+        unique_together = [["semaine"]]
         verbose_name = "emploi du temps"
         verbose_name_plural = "emplois du temps"
 
@@ -162,7 +153,7 @@ class EmploiDuTemps(models.Model):
         return f"emploi-du-temps-{self.pk}.pdf"
 
     def __str__(self) -> str:
-        return f"{self.option} - semaine du {self.semaine} ({self.get_statut_display()})"
+        return f"Semaine du {self.semaine} ({self.get_statut_display()})"
 
 class Creneau(models.Model):
     
@@ -232,7 +223,7 @@ class Creneau(models.Model):
             self.heureFin,
             self.salle_id,
             self.enseignant_id,
-            self.option_id,
+            self.cours_id,
         ]
         if not all(champs_requis):
             return
@@ -248,7 +239,8 @@ class Creneau(models.Model):
             raise ValidationError("Cette salle est déjà occupée sur ce créneau.")
         if chevauchements.filter(enseignant=self.enseignant).exists():
             raise ValidationError("Cet enseignant est déjà affecté sur ce créneau.")
-        if chevauchements.filter(option=self.option).exists():
+        option = self.option or getattr(self.cours, "option", None)
+        if option and chevauchements.filter(option=option).exists():
             raise ValidationError("Cette option a déjà un cours sur ce créneau.")
 
     def affecter(self) -> None:

@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 
 {% block titre %}Tableau de bord étudiant — EDT ENSPM{% endblock %}
 
@@ -21,12 +21,12 @@
   {% if emplois_du_temps %}
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Semaine</th><th>Option</th><th>Statut</th><th>Action</th></tr></thead>
+      <thead><tr><th>Semaine</th><th>Périmètre</th><th>Statut</th><th>Action</th></tr></thead>
       <tbody>
         {% for emploi in emplois_du_temps %}
         <tr>
           <td class="td-bold">{{ emploi.semaine }}</td>
-          <td>{{ emploi.option }}</td>
+          <td>Département</td>
           <td><span class="badge badge-green"><span class="dot"></span>{{ emploi.get_statut_display }}</span></td>
           <td><a class="btn btn-outline btn-sm" href="{% url 'detail_emploi_du_temps' emploi.pk %}"><i class="ti ti-eye"></i> Voir</a></td>
         </tr>

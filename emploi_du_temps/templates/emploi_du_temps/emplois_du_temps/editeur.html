@@ -1,78 +1,17 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 
 {% block titre %}Emploi du temps officiel — EDT ENSPM{% endblock %}
 {% block body_class %}official-page{% endblock %}
 
 {% block contenu %}
 <div class="official-actions no-print">
-  <div>
-    <strong>Éditeur officiel</strong>
-    <span>Glissez les cours dans la grille ou imprimez la version officielle.</span>
-  </div>
   <div class="td-actions">
+    <a class="btn btn-secondary" href="{% url 'liste_emplois_du_temps' %}"><i class="ti ti-arrow-left"></i> Retour</a>
     <a class="btn btn-success" href="{% url 'ajouter_creneau' emploi_du_temps.pk %}"><i class="ti ti-plus"></i> Ajouter un créneau</a>
     <a class="btn btn-outline" href="{% url 'detail_emploi_du_temps' emploi_du_temps.pk %}"><i class="ti ti-eye"></i> Vue détail</a>
     <button class="btn btn-primary" type="button" onclick="window.print()"><i class="ti ti-printer"></i> Imprimer</button>
-    <a class="btn btn-secondary" href="{% url 'liste_emplois_du_temps' %}"><i class="ti ti-arrow-left"></i> Retour</a>
   </div>
 </div>
-
-<section class="official-sheet">
-  <header class="official-letterhead">
-    <div class="letterhead-block letterhead-left">
-      <strong>République du Cameroun</strong>
-      <em>Paix-Travail-Patrie</em>
-      <span>------------</span>
-      <strong>Ministère de l’Enseignement Supérieur</strong>
-      <span>------------</span>
-      <strong>UNIVERSITÉ DE MAROUA</strong>
-      <span>------------</span>
-      <strong>ECOLE NATIONALE SUPERIEURE POLYTECHNIQUE</strong>
-      <span>------------</span>
-      <strong>Département d'Informatique et des Télécommunications</strong>
-    </div>
-
-    <div class="letterhead-center">
-      <div class="official-seal">
-        <span>Université<br>de Maroua</span>
-        <strong>2008</strong>
-      </div>
-      <p>
-        B.P/P.O. Box : 46 Maroua<br>
-        Tel : (+237) 22 62 03 76 / (+237) 22 62 08 90<br>
-        Fax : (+237) 22 29 31 12 / (+237) 22 29 15 41<br>
-        <a href="http://www.enspm.univ-maroua.cm">Site web : http://www.enspm.univ-maroua.cm</a><br>
-        <a href="mailto:polytech@univ-maroua.cm">Email : polytech@univ-maroua.cm</a>
-      </p>
-    </div>
-
-    <div class="letterhead-block letterhead-right">
-      <strong>Republic of Cameroon</strong>
-      <em>Peace-Work-Fatherland</em>
-      <span>------------</span>
-      <strong>Ministry of Higher Education</strong>
-      <span>------------</span>
-      <strong>THE UNIVERSITY OF MAROUA</strong>
-      <span>------------</span>
-      <strong>NATIONAL ADVANCED SCHOOL OF ENGINEERING</strong>
-      <span>------------</span>
-      <strong>Department of Computer Science and Telecommunications</strong>
-    </div>
-  </header>
-
-  <div class="official-green-line"></div>
-
-  <div class="official-title-box">
-    <h1>EMPLOI DE TEMPS</h1>
-    <p>
-      <strong>Année académique 2025 - 2026 - Semestre I</strong>
-      <span class="official-period"> - période du {{ emploi_du_temps.semaine|date:"d" }} au {{ date_fin_semaine|date:"d F Y" }}</span>
-    </p>
-    <p class="official-site-room">
-      <span><strong>Site :</strong> {{ site_officiel }}</span>
-      <span class="official-room"><strong>Salle :</strong> {{ salle_officielle }}</span>
-    </p>
-  </div>
 
   <div class="official-table-wrap">
     <table class="official-table">

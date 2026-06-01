@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+{% block titre %}Emploi du Temps — Semaine du {{ semaine|date:"d/m/Y" }} — EDT ENSPM{% endblock %}
+
+{% block contenu %}
+
+<!-- ── Flash messages ── -->
+{% if messages %}
+<div class="alerts-wrap" style="margin-bottom:12px;">
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% else %}alert-info{% endif %}">
+    {% if message.tags == 'success' %}<i class="ti ti-circle-check"></i>
+    {% elif message.tags == 'error' %}<i class="ti ti-alert-circle"></i>
+    {% else %}<i class="ti ti-info-circle"></i>{% endif %}
+    {{ message }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ── Barre de titre + actions ── -->
+<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="page-icon"><i class="ti ti-calendar-week"></i></div>
+    <div>
+      <h1 class="page-title" style="margin:0;">Emploi du Temps</h1>
+      <p class="page-sub" style="margin:0;">Semaine du <strong>{{ semaine|date:"d/m/Y" }}</strong>
+        {% if salle_id_actif %}
+          {% for s in salles %}{% if s.pk == salle_id_actif %}— Salle <strong>{{ s.nom }}</strong>{% endif %}{% endfor %}
+        {% endif %}
+        {% for emp in emplois_semaine %}
+          <span class="badge-statut {% if emp.statut == 'PUBLIE' %}badge-publie{% else %}badge-brouillon{% endif %}">
+            {{ emp.get_statut_display }}
+          </span>
+        {% endfor %}
+      </p>
+    </div>
+  </div>
+
+  <!-- Actions principales -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    {% if est_cd %}
+    <a class="btn btn-primary" href="{% url 'ajouter_creneau_grille' %}?semaine={{ semaine|date:'Y-m-d' }}{% if salle_id_actif %}&salle={{ salle_id_actif }}{% endif %}">
+      <i class="ti ti-plus"></i> Ajouter un créneau
+    </a>
+
+    <!-- Publication -->
+    {% if emplois_semaine %}
+      {% with nb_brouillons=0 nb_publies=0 %}
+      {% for emp in emplois_semaine %}
+        {% if emp.statut == 'BROUILLON' %}
+        <form method="post" action="{% url 'publier_semaine' %}" style="display:inline;">
+          {% csrf_token %}
+          <input type="hidden" name="semaine" value="{{ semaine|date:'Y-m-d' }}">
+          <button type="submit" class="btn btn-success"
+                  onclick="return confirm('Publier tous les emplois brouillons de cette semaine ?')">
+            <i class="ti ti-send"></i> Publier
+          </button>
+        </form>
+        {% endif %}
+        {% if emp.statut == 'PUBLIE' %}
+        <form method="post" action="{% url 'depublier_semaine' %}" style="display:inline;">
+          {% csrf_token %}
+          <input type="hidden" name="semaine" value="{{ semaine|date:'Y-m-d' }}">
+          <button type="submit" class="btn btn-outline"
+                  onclick="return confirm('Repasser en brouillon ?')">
+            <i class="ti ti-rotate-clockwise"></i> Brouillon
+          </button>
+        </form>
+        {% endif %}
+      {% endfor %}
+      {% endwith %}
+    {% endif %}
+
+    <!-- Exports -->
+    <div style="position:relative;display:inline-block;" id="exportMenu">
+      <button class="btn btn-secondary" onclick="document.getElementById('exportDropdown').classList.toggle('show')">
+        <i class="ti ti-download"></i> Exporter <i class="ti ti-chevron-down" style="font-size:11px;"></i>
+      </button>
+      <div id="exportDropdown" class="dropdown-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--gray-200);border-radius:10px;box-shadow:var(--shadow-md);min-width:200px;z-index:100;overflow:hidden;">
+        <a href="{% url 'grille_edt_semaine' semaine|date:'Y-m-d' %}?export=pdf&salle_id={{ salle_id_actif|default:'' }}" class="dropdown-item">
+          <i class="ti ti-file-type-pdf" style="color:#e74c3c;"></i> Exporter en PDF
+        </a>
+        <a href="{% url 'grille_edt_semaine' semaine|date:'Y-m-d' %}?export=imprimer&salle_id={{ salle_id_actif|default:'' }}" class="dropdown-item" target="_blank">
+          <i class="ti ti-printer" style="color:var(--blue);"></i> Version imprimable
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ── Navigation semaines ── -->
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:12px 14px;background:var(--gray-50);border-radius:12px;border:1px solid var(--gray-200);">
+  <a href="/emplois-du-temps/grille/{{ semaine_prev|date:'Y-m-d' }}/{% if salle_id_actif %}?salle_id={{ salle_id_actif }}{% endif %}" class="btn btn-secondary btn-sm">
+    <i class="ti ti-chevron-left"></i> Préc.
+  </a>
+
+  <input type="week" id="semaineInput" class="form-control" style="width:180px;display:inline-block;"
+         data-semaine="{{ semaine|date:'Y-m-d' }}"
+         onchange="allerSemaine(this.value)">
+
+  <a href="/emplois-du-temps/grille/{{ semaine_next|date:'Y-m-d' }}/{% if salle_id_actif %}?salle_id={{ salle_id_actif }}{% endif %}" class="btn btn-secondary btn-sm">
+    Suiv. <i class="ti ti-chevron-right"></i>
+  </a>
+
+  {% if semaines_dispo %}
+  <select class="form-control" style="width:210px;display:inline-block;"
+          onchange="if(this.value) window.location='/emplois-du-temps/grille/'+this.value+'/{% if salle_id_actif %}?salle_id={{ salle_id_actif }}{% endif %}'">
+    <option value="">— Semaines planifiées —</option>
+    {% for sd in semaines_dispo %}
+    <option value="{{ sd|date:'Y-m-d' }}" {% if sd == semaine %}selected{% endif %}>
+      Sem. du {{ sd|date:"d/m/Y" }}
+    </option>
+    {% endfor %}
+  </select>
+  {% endif %}
+
+  <!-- ── Filtre salle ── -->
+  <form method="GET" action="/emplois-du-temps/grille/{{ semaine|date:'Y-m-d' }}/" style="display:flex;align-items:center;">
+    <div class="salle-select-wrap">
+      <i class="ti ti-building salle-select-icon"></i>
+      <select name="salle_id" class="salle-select" onchange="this.form.submit()">
+        {% for s in salles %}
+        <option value="{{ s.pk }}" {% if salle_id_actif == s.pk %}selected{% endif %}>{{ s.nom }}</option>
+        {% endfor %}
+      </select>
+      <i class="ti ti-chevron-down salle-select-arrow"></i>
+    </div>
+  </form>
+
+</div>
+
+
+
+<!-- ── Grille officielle ── -->
+<div style="overflow-x:auto;">
+<table class="edt-grid">
+  <thead>
+    <tr>
+      <th class="edt-th-horaire">Horaires</th>
+      {% for code, label in jours %}
+      <th class="edt-th">{{ label|upper }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for ligne in lignes %}
+      {% if ligne.pause %}
+      <tr class="edt-pause-row">
+        <td class="edt-pause-horaire">{{ ligne.plage.label }}</td>
+        <td class="edt-pause-cell" colspan="6"><i class="ti ti-coffee"></i> PAUSE</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td class="edt-horaire-cell"><strong>{{ ligne.plage.label }}</strong></td>
+        {% for cellule in ligne.cellules %}
+        <td class="edt-day-cell"{% if est_cd and not cellule.creneaux %} data-add-url="{% url 'ajouter_creneau_grille' %}?semaine={{ semaine|date:'Y-m-d' }}{% if salle_id_actif %}&salle={{ salle_id_actif }}{% endif %}&jour={{ cellule.jour }}&plage={{ cellule.plage.id }}" onclick="window.location=this.dataset.addUrl" style="cursor:pointer;"{% endif %}>
+
+          {% for cr in cellule.creneaux %}
+          <div class="edt-card">
+            {% if est_cd %}
+            <div class="edt-card-actions">
+              <a href="{% url 'modifier_creneau_grille' cr.pk %}" class="edt-act-btn edt-act-edit" title="Modifier">
+                <i class="ti ti-edit"></i>
+              </a>
+              <a href="{% url 'supprimer_creneau_grille' cr.pk %}" class="edt-act-btn edt-act-del"
+                 onclick="return confirm('Supprimer ce créneau ?')" title="Supprimer">
+                <i class="ti ti-trash"></i>
+              </a>
+            </div>
+            {% endif %}
+            <div class="edt-card-body">
+              <div class="edt-cours-nom">{{ cr.cours.intitule }}</div>
+              <div class="edt-code-badge-line">{{ cr.cours.codeCours }}</div>
+              {% if cr.cours.volumeHoraire %}
+              <div class="edt-volume">({{ cr.cours.volumeHoraire }})</div>
+              {% endif %}
+              <div class="edt-enseignant-line">{{ cr.enseignant.nom }} {{ cr.enseignant.prenom }}</div>
+            </div>
+          </div>
+          {% empty %}
+          {% if est_cd %}
+          <a href="{% url 'ajouter_creneau_grille' %}?semaine={{ semaine|date:'Y-m-d' }}{% if salle_id_actif %}&salle={{ salle_id_actif }}{% endif %}&jour={{ cellule.jour }}&plage={{ cellule.plage.id }}"
+             class="edt-add-btn" title="Ajouter un créneau ici" onclick="event.stopPropagation();">
+            <i class="ti ti-plus"></i>
+          </a>
+          {% else %}
+          <span style="display:block;min-height:50px;"></span>
+          {% endif %}
+          {% endfor %}
+
+
+        </td>
+        {% endfor %}
+      </tr>
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<!-- Légende statuts -->
+{% if emplois_semaine %}
+<div style="margin-top:16px;padding:12px 16px;background:var(--gray-50);border-radius:10px;border:1px solid var(--gray-200);font-size:13px;">
+  <strong>Emplois de cette semaine :</strong>
+  {% for emp in emplois_semaine %}
+  <span class="badge-statut {% if emp.statut == 'PUBLIE' %}badge-publie{% else %}badge-brouillon{% endif %}" style="margin-left:8px;">
+    <i class="ti {% if emp.statut == 'PUBLIE' %}ti-circle-check{% else %}ti-pencil{% endif %}"></i>
+    {{ emp.get_statut_display }}
+    ({{ emp.creneaux.count }} créneau{% if emp.creneaux.count > 1 %}x{% endif %})
+  </span>
+  {% endfor %}
+</div>
+{% endif %}
+
+<style>
+/* ── Grille ── */
+.edt-grid{width:100%;border-collapse:collapse;border:2px solid #000;font-size:13px;min-width:900px}
+.edt-th-horaire{background:#fff;color:#000;border:2px solid #000;font-weight:700;text-align:center;padding:10px 8px;width:110px;font-size:12px;letter-spacing:.5px}
+.edt-th{background:#fff;color:#000;border:2px solid #000;font-weight:700;text-align:center;padding:10px 6px;font-size:12px;letter-spacing:.5px}
+.edt-horaire-cell{background:var(--gray-50);border:2px solid #009a63;font-size:12px;text-align:center;vertical-align:middle;padding:8px 6px;font-weight:700;white-space:nowrap}
+.edt-day-cell{border:2px solid #009a63;min-height:90px;min-width:130px;vertical-align:top;padding:4px;position:relative}
+.edt-card{background:#fff;border-radius:6px;margin-bottom:4px;overflow:hidden;position:relative;transition:box-shadow .15s,transform .15s}
+.edt-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.edt-card-actions{display:none;position:absolute;top:3px;right:3px;gap:3px;z-index:2}
+.edt-card:hover .edt-card-actions{display:flex}
+.edt-act-btn{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;font-size:12px;text-decoration:none;transition:all .15s}
+.edt-act-edit{background:var(--blue-light);color:var(--blue)}
+.edt-act-edit:hover{background:var(--blue);color:#fff}
+.edt-act-del{background:#fde8e8;color:var(--red)}
+.edt-act-del:hover{background:var(--red);color:#fff}
+.edt-card-body{padding:6px 8px;text-align:center}
+.edt-cours-nom{font-weight:700;font-size:12px;color:#1a1a2e;line-height:1.3;margin-bottom:2px}
+.edt-code-badge-line{font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:2px}
+.edt-volume{font-size:10px;color:#444;margin-bottom:3px;font-style:normal}
+.edt-enseignant-line{font-size:11px;color:#c51414;font-weight:700;margin-bottom:2px}
+.edt-meta-small{font-size:10px;color:var(--gray-500);line-height:1.5;display:flex;align-items:center;justify-content:center;gap:3px}
+.edt-option-badge{display:inline-block;background:var(--blue-light);color:var(--blue);font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.edt-add-btn{display:flex;align-items:center;justify-content:center;flex:1;min-height:50px;color:var(--gray-300);font-size:20px;text-decoration:none;border:1.5px dashed var(--gray-200);border-radius:6px;transition:all .15s}
+.edt-add-btn:hover{color:#7030a0;border-color:#7030a0;background:#f8f4ff}
+.edt-add-small{min-height:24px;font-size:14px;margin-top:4px}
+.edt-pause-row td{border:2px solid #7030a0}
+.edt-pause-horaire{background:#bdd7ee!important;font-size:12px;vertical-align:middle;padding:6px 4px;font-weight:700;text-align:center}
+.edt-pause-cell{background:#bdd7ee!important;font-size:15px;font-weight:900;letter-spacing:3px;color:#1a1a2e;padding:10px;text-align:center}
+/* Badges statut */
+.badge-statut{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700}
+.badge-publie{background:#d1fae5;color:#065f46}
+.badge-brouillon{background:#fef3c7;color:#92400e}
+/* Dropdown */
+.dropdown-item{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;color:var(--gray-700);text-decoration:none;transition:background .1s}
+.dropdown-item:hover{background:var(--gray-50)}
+.btn-sm{padding:6px 13px;font-size:12px}
+/* ── Select salle stylé ── */
+.salle-select-wrap{
+  position:relative;display:flex;align-items:center;
+  background:#fff;border:1.5px solid var(--gray-200);
+  border-radius:9px;padding:0 10px 0 10px;
+  height:36px;gap:6px;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .18s;
+}
+.salle-select-wrap:hover{border-color:var(--blue)}
+.salle-select-icon{font-size:15px;color:var(--blue);flex-shrink:0;pointer-events:none}
+.salle-select{
+  border:none;outline:none;background:transparent;
+  font-size:13px;font-weight:600;color:var(--gray-900);
+  padding-right:18px;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  min-width:160px;max-width:220px;
+}
+.salle-select-arrow{
+  font-size:13px;color:var(--gray-400);
+  position:absolute;right:8px;pointer-events:none;
+}
+</style>
+
+<script>
+// ── Navigation par semaine ───────────────────────────────────────────────────
+function allerSemaine(weekValue) {
+  if (!weekValue) return;
+  const [year, week] = weekValue.split('-W');
+  const jan4 = new Date(year, 0, 4);
+  const dow = jan4.getDay() || 7;
+  const lundi = new Date(jan4);
+  lundi.setDate(jan4.getDate() - dow + 1 + (parseInt(week) - 1) * 7);
+  const iso = lundi.toISOString().split('T')[0];
+  const params = new URLSearchParams(window.location.search);
+  const filtre = params.get('salle_id') ? '?salle_id=' + params.get('salle_id') : '';
+  window.location = '/emplois-du-temps/grille/' + iso + '/' + filtre;
+}
+
+// Initialiser input[type=week]
+(function(){
+  const input = document.getElementById('semaineInput');
+  const semaine = input?.dataset.semaine;
+  if (!semaine) return;
+  const d = new Date(semaine + 'T00:00:00');
+  const startOfYear = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+  input.value = d.getFullYear() + '-W' + String(week).padStart(2, '0');
+})();
+
+// ── Dropdown export ──────────────────────────────────────────────────────────
+document.addEventListener('click', function(e) {
+  const drop = document.getElementById('exportDropdown');
+  const btn = document.getElementById('exportMenu');
+  if (drop && !btn?.contains(e.target)) drop.classList.remove('show');
+});
+document.getElementById('exportDropdown')?.addEventListener('click', e => e.stopPropagation());
+// show/hide via class
+const style = document.createElement('style');
+style.textContent = '#exportDropdown.show{display:block!important}';
+document.head.appendChild(style);
+</script>
+
+{% endblock %}

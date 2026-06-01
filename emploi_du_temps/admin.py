@@ -74,13 +74,27 @@ class SalleAdmin(admin.ModelAdmin):
 class CreneauInline(admin.TabularInline):
     model = Creneau
     extra = 0
+    fields = ("jour", "heureDebut", "heureFin", "cours", "enseignant", "salle")
+
+    def save_new(self, form, commit=True):
+        obj = super().save_new(form, commit=False)
+        obj.option = obj.cours.option
+        if commit:
+            obj.save()
+        return obj
+
+    def save_existing(self, form, instance, commit=True):
+        obj = super().save_existing(form, instance, commit=False)
+        obj.option = obj.cours.option
+        if commit:
+            obj.save()
+        return obj
 
 
 @admin.register(EmploiDuTemps)
 class EmploiDuTempsAdmin(admin.ModelAdmin):
-    list_display = ("semaine", "option", "statut", "creePar", "datePublication")
-    list_filter = ("statut", "option", "semaine")
-    search_fields = ("option__nom",)
+    list_display = ("semaine", "statut", "creePar", "datePublication")
+    list_filter = ("statut", "semaine")
     inlines = [CreneauInline]
 
 

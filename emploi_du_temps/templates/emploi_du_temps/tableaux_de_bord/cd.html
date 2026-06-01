@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 {% block titre %}Tableau de bord — EDT ENSPM{% endblock %}
 {% block contenu %}
 
@@ -7,7 +7,7 @@
     <div class="page-icon"><i class="ti ti-layout-dashboard"></i></div>
     <div>
       <h1 class="page-title">Tableau de bord</h1>
-      <p class="page-sub">Bienvenue, {{ user.prenom }} {{ user.nom }} — Chef de département</p>
+      <p class="page-sub">Bienvenue, {{ user.nom }} {{ user.prenom }} — Chef de département</p>
     </div>
   </div>
 </div>
@@ -77,11 +77,11 @@
     <i class="ti ti-chevron-right" style="margin-left:auto;color:var(--gray-400);"></i>
   </a>
 
-  <a href="{% url 'liste_emplois_du_temps' %}" class="card" style="padding:20px;display:flex;align-items:center;gap:14px;text-decoration:none;transition:all .2s;grid-column:1 / -1;">
-    <div class="stat-ico purple"><i class="ti ti-calendar-time"></i></div>
+  <a href="{% url 'grille_edt' %}" class="card" style="padding:20px;display:flex;align-items:center;gap:14px;text-decoration:none;transition:all .2s;grid-column:1 / -1;">
+    <div class="stat-ico purple"><i class="ti ti-calendar-week"></i></div>
     <div>
-      <div style="font-weight:700;color:var(--gray-900);">Créer les emplois du temps</div>
-      <div style="font-size:12px;color:var(--gray-500);margin-top:3px;">{{ nb_brouillons }} brouillon(s), {{ nb_publies }} publié(s) — grille officielle et créneaux</div>
+      <div style="font-weight:700;color:var(--gray-900);">Grille des emplois du temps</div>
+      <div style="font-size:12px;color:var(--gray-500);margin-top:3px;">{{ nb_brouillons }} brouillon(s), {{ nb_publies }} publié(s) — Ajouter des créneaux directement sur la grille</div>
     </div>
     <i class="ti ti-chevron-right" style="margin-left:auto;color:var(--gray-400);"></i>
   </a>

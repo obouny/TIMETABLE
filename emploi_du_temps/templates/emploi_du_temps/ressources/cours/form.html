@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 {% block titre %}{{ action }} cours — EDT ENSPM{% endblock %}
 {% block contenu %}
 
@@ -47,11 +47,11 @@
         <div class="form-group">
           <label class="form-label" for="volumeHoraire">
             <i class="ti ti-clock" style="color:var(--blue)"></i>
-            Volume horaire (h) <span class="form-required">*</span>
+            Volume horaire
           </label>
-          <input class="form-control" type="number" id="volumeHoraire" name="volumeHoraire"
-                 value="{{ cours.volumeHoraire|default:'' }}"
-                 placeholder="Ex : 30" min="1" required/>
+          <input class="form-control" type="text" id="volumeHoraire" name="volumeHoraire"
+                 value="{{ cours.volumeHoraire|default:'CM:30h, TD:20h, TP:30h, TPE:10h' }}"
+                 placeholder="CM:30h, TD:20h, TP:30h, TPE:10h"/>
         </div>
       </div>
 

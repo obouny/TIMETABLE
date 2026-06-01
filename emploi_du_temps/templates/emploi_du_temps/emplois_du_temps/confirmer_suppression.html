@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 
 {% block titre %}Supprimer emploi du temps — EDT ENSPM{% endblock %}
 
@@ -9,7 +9,7 @@
     <h2 class="confirm-title">Supprimer l'emploi du temps</h2>
     <p class="confirm-text">
       Voulez-vous vraiment supprimer l'emploi du temps de la semaine du
-      <strong>{{ emploi_du_temps.semaine }}</strong> pour <strong>{{ emploi_du_temps.option }}</strong> ?
+      <strong>{{ emploi_du_temps.semaine }}</strong> ?
       Cette action est <strong>irréversible</strong>.
     </p>
   </div>

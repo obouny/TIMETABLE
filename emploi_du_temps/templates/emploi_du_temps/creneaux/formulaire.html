@@ -1,4 +1,4 @@
-{% extends "emploi_du_temps/base.html" %}
+{% extends "base.html" %}
 
 {% block titre %}{{ titre }} — EDT ENSPM{% endblock %}
 
@@ -8,7 +8,7 @@
     <div class="page-icon"><i class="ti ti-clock-plus"></i></div>
     <div>
       <h1 class="page-title">{{ titre }}</h1>
-      <p class="page-sub">Semaine du {{ emploi_du_temps.semaine }} — {{ emploi_du_temps.option }}</p>
+      <p class="page-sub">Semaine du {{ emploi_du_temps.semaine }} — emploi du temps global</p>
     </div>
   </div>
   <a class="btn btn-secondary" href="{% url 'editeur_emploi_du_temps' emploi_du_temps.pk %}"><i class="ti ti-arrow-left"></i> Retour à la grille</a>
