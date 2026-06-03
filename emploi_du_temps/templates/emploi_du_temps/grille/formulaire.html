@@ -52,9 +52,9 @@
           <select name="cours" id="selectCours" class="form-control" required>
             <option value="">— Sélectionner —</option>
             {% for c in form.cours.field.queryset %}
-            <option value="{{ c.codeCours }}" data-option="{{ c.option_id }}"
-              {% if form.cours.value == c.codeCours %}selected{% endif %}>
-              {{ c.intitule }} ({{ c.codeCours }}) — {{ c.option.nom }}
+            <option value="{{ c.pk }}" data-option="{{ c.option_id }}"
+              {% if form.cours.value|stringformat:"s" == c.pk|stringformat:"s" or creneau and creneau.cours_id == c.pk %}selected{% endif %}>
+              {{ c.codeCours }} — {{ c.intitule }} — UE : {{ c.ue.intituleUE }} — {{ c.option.nom }}
             </option>
             {% endfor %}
           </select>

@@ -98,9 +98,28 @@ class Option(models.Model):
         return f"{self.nom} - niveau {self.niveau}"
 
 
+class UE(models.Model):
+    codeUE = models.CharField("code UE", max_length=30, primary_key=True)
+    intituleUE = models.CharField("intitulé UE", max_length=200)
+
+    class Meta:
+        ordering = ["codeUE"]
+        verbose_name = "UE"
+        verbose_name_plural = "UE"
+
+    def __str__(self) -> str:
+        return f"{self.codeUE} - {self.intituleUE}"
+
+
 class Cours(models.Model):
-    codeCours = models.CharField("code du cours", max_length=30, primary_key=True)
-    intitule = models.CharField("intitulé", max_length=200)
+    ue = models.ForeignKey(
+        UE,
+        on_delete=models.PROTECT,
+        related_name="cours",
+        verbose_name="UE",
+    )
+    codeCours = models.CharField("code du cours", max_length=30, editable=False)
+    intitule = models.CharField("intitulé du cours", max_length=200)
     volumeHoraire = models.CharField("volume horaire", max_length=100, blank=True)
     option = models.ForeignKey(
         Option,
@@ -110,9 +129,28 @@ class Cours(models.Model):
     )
 
     class Meta:
-        ordering = ["codeCours"]
+        ordering = ["codeCours", "intitule"]
         verbose_name = "cours"
         verbose_name_plural = "cours"
+
+    def _valider_nombre_cours_ue(self) -> None:
+        qs = Cours.objects.filter(ue_id=self.ue_id).exclude(pk=self.pk)
+        if qs.count() >= 2:
+            raise ValidationError(
+                "Cette UE possède déjà deux cours. Impossible d’ajouter un troisième cours."
+            )
+
+    def clean(self) -> None:
+        super().clean()
+        if self.ue_id:
+            self.codeCours = self.ue_id
+            self._valider_nombre_cours_ue()
+
+    def save(self, *args, **kwargs):
+        if self.ue_id:
+            self.codeCours = self.ue_id
+            self._valider_nombre_cours_ue()
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return f"{self.codeCours} - {self.intitule}"

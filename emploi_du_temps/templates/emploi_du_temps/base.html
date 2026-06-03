@@ -417,6 +417,9 @@ tbody td{padding:13px 18px;color:var(--gray-700);vertical-align:middle}
     <a href="{% url 'enseignant_liste' %}" class="nav-link {% if 'enseignant' in request.resolver_match.url_name %}active{% endif %}">
       <i class="ti ti-users" aria-hidden="true"></i> Enseignants
     </a>
+    <a href="{% url 'ue_liste' %}" class="nav-link {% if 'ue' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="ti ti-components" aria-hidden="true"></i> UE
+    </a>
     <a href="{% url 'cours_liste' %}" class="nav-link {% if 'cours' in request.resolver_match.url_name %}active{% endif %}">
       <i class="ti ti-book-2" aria-hidden="true"></i> Cours
     </a>

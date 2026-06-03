@@ -10,7 +10,7 @@
     <div>
       <h1 class="page-title">{{ action }} un cours</h1>
       <p class="page-sub">
-        {% if action == "Créer" %}Remplissez les informations du nouveau cours
+        {% if action == "Créer" %}Rattachez le nouveau cours à une UE
         {% else %}Modifiez les informations du cours{% endif %}
       </p>
     </div>
@@ -23,7 +23,7 @@
 <div class="form-card">
   <div class="form-card-head">
     <h2>Informations du cours</h2>
-    <p>Les champs marqués <span style="color:var(--red)">*</span> sont obligatoires</p>
+    <p>Le code du cours reprend automatiquement le code de l’UE sélectionnée.</p>
   </div>
   <div class="form-card-body">
     <form method="post">
@@ -31,19 +31,34 @@
 
       <div class="form-row">
         <div class="form-group">
+          <label class="form-label" for="ue">
+            <i class="ti ti-components" style="color:var(--blue)"></i>
+            UE <span class="form-required">*</span>
+          </label>
+          <select class="form-control" id="ue" name="ue" required>
+            <option value="">-- Sélectionner une UE --</option>
+            {% for u in ues %}
+            <option value="{{ u.codeUE }}" data-code="{{ u.codeUE }}"
+              {% if cours and cours.ue_id == u.codeUE %}selected{% endif %}>
+              {{ u.codeUE }} — {{ u.intituleUE }} ({{ u.cours.count }}/2 cours)
+            </option>
+            {% endfor %}
+          </select>
+          <p class="form-hint">Une UE peut contenir au maximum deux cours.</p>
+        </div>
+        <div class="form-group">
           <label class="form-label" for="codeCours">
             <i class="ti ti-hash" style="color:var(--blue)"></i>
-            Code du cours <span class="form-required">*</span>
+            Code du cours
           </label>
           <input class="form-control" type="text" id="codeCours" name="codeCours"
                  value="{{ cours.codeCours|default:'' }}"
-                 placeholder="Ex : INF101"
-                 {% if action == "Modifier" %}readonly{% endif %}
-                 required/>
-          {% if action == "Modifier" %}
-          <p class="form-hint">Le code ne peut pas être modifié</p>
-          {% endif %}
+                 placeholder="Sélectionnez une UE" readonly/>
+          <p class="form-hint">Ce code est identique au code UE.</p>
         </div>
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="volumeHoraire">
             <i class="ti ti-clock" style="color:var(--blue)"></i>
@@ -52,6 +67,21 @@
           <input class="form-control" type="text" id="volumeHoraire" name="volumeHoraire"
                  value="{{ cours.volumeHoraire|default:'CM:30h, TD:20h, TP:30h, TPE:10h' }}"
                  placeholder="CM:30h, TD:20h, TP:30h, TPE:10h"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="option">
+            <i class="ti ti-award" style="color:var(--blue)"></i>
+            Option (filière) <span class="form-required">*</span>
+          </label>
+          <select class="form-control" id="option" name="option" required>
+            <option value="">-- Sélectionner une option --</option>
+            {% for o in options %}
+            <option value="{{ o.pk }}"
+              {% if cours and cours.option_id == o.pk %}selected{% endif %}>
+              {{ o.nom }} — Niveau {{ o.niveau }}
+            </option>
+            {% endfor %}
+          </select>
         </div>
       </div>
 
@@ -62,23 +92,7 @@
         </label>
         <input class="form-control" type="text" id="intitule" name="intitule"
                value="{{ cours.intitule|default:'' }}"
-               placeholder="Ex : Algorithmique et structures de données" required/>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="option">
-          <i class="ti ti-award" style="color:var(--blue)"></i>
-          Option (filière) <span class="form-required">*</span>
-        </label>
-        <select class="form-control" id="option" name="option" required>
-          <option value="">-- Sélectionner une option --</option>
-          {% for o in options %}
-          <option value="{{ o.pk }}"
-            {% if cours and cours.option_id == o.pk %}selected{% endif %}>
-            {{ o.nom }} — Niveau {{ o.niveau }}
-          </option>
-          {% endfor %}
-        </select>
+               placeholder="Ex : Développement d'applications mobiles" required/>
       </div>
 
       <div class="form-actions">
@@ -91,4 +105,15 @@
     </form>
   </div>
 </div>
+
+<script>
+const ueSelect = document.getElementById('ue');
+const codeInput = document.getElementById('codeCours');
+function syncCodeCours() {
+  const selected = ueSelect.options[ueSelect.selectedIndex];
+  codeInput.value = selected?.dataset?.code || '';
+}
+ueSelect?.addEventListener('change', syncCodeCours);
+syncCodeCours();
+</script>
 {% endblock %}

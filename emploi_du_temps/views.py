@@ -20,7 +20,7 @@ from emploi_du_temps.forms import (
 )
 from emploi_du_temps.grille import JOURS_EDT, PLAGES_HORAIRES, construire_grille_semaine, trouver_plage
 from emploi_du_temps.permissions import cd_requis
-from .models import Cours, Creneau, EmploiDuTemps, Option, Salle, Utilisateur
+from .models import Cours, Creneau, EmploiDuTemps, Option, Salle, UE, Utilisateur
 
 
 class ConnexionView(LoginView):
@@ -48,6 +48,7 @@ def tableau_de_bord(request: HttpRequest) -> HttpResponse:
             "nb_enseignants": Utilisateur.objects.filter(role=Utilisateur.Role.ENSEIGNANT).count(),
             "nb_etudiants": Utilisateur.objects.filter(role=Utilisateur.Role.ETUDIANT).count(),
             "nb_cours": Cours.objects.count(),
+            "nb_ues": UE.objects.count(),
             "nb_salles": Salle.objects.count(),
             "nb_options": Option.objects.count(),
             "nb_emplois": EmploiDuTemps.objects.count(),
@@ -417,7 +418,7 @@ def ajax_conflits(request: HttpRequest) -> JsonResponse:
 @login_required
 def ajax_cours_par_option(request: HttpRequest, option_id: int) -> JsonResponse:
     """Retourne les cours d'une option (équivalent PHP /edt/cours-par-filiere)."""
-    cours = list(Cours.objects.filter(option_id=option_id).values("codeCours", "intitule"))
+    cours = list(Cours.objects.filter(option_id=option_id).values("id", "codeCours", "intitule", "ue_id"))
     return JsonResponse(cours, safe=False)
 
 
@@ -784,44 +785,111 @@ def etudiant_supprimer(request, pk):
     )
 
 @cd_requis
+def ue_liste(request):
+    ues = UE.objects.prefetch_related("cours").all()
+    return render(request, "emploi_du_temps/ressources/ues/liste.html", {"ues": ues})
+
+
+@cd_requis
+def ue_creer(request):
+    if request.method == "POST":
+        code = request.POST.get("codeUE", "").strip().upper()
+        intitule = request.POST.get("intituleUE", "").strip()
+        if not all([code, intitule]):
+            messages.error(request, "Tous les champs sont obligatoires.")
+        elif UE.objects.filter(codeUE=code).exists():
+            messages.error(request, "Ce code UE existe déjà.")
+        else:
+            UE.objects.create(codeUE=code, intituleUE=intitule)
+            messages.success(request, f"UE {code} créée avec succès.")
+            return redirect("ue_liste")
+    return render(request, "emploi_du_temps/ressources/ues/form.html", {"action": "Créer", "ue": None})
+
+
+@cd_requis
+def ue_modifier(request, pk):
+    ue = get_object_or_404(UE, codeUE=pk)
+    if request.method == "POST":
+        ue.intituleUE = request.POST.get("intituleUE", ue.intituleUE).strip()
+        if not ue.intituleUE:
+            messages.error(request, "L’intitulé UE est obligatoire.")
+        else:
+            ue.save()
+            messages.success(request, "UE modifiée avec succès.")
+            return redirect("ue_liste")
+    return render(request, "emploi_du_temps/ressources/ues/form.html", {"action": "Modifier", "ue": ue})
+
+
+@cd_requis
+def ue_supprimer(request, pk):
+    ue = get_object_or_404(UE, codeUE=pk)
+    if request.method == "POST":
+        try:
+            ue.delete()
+        except ProtectedError:
+            messages.error(request, "Impossible de supprimer cette UE car elle est liée à des cours.")
+            return redirect("ue_liste")
+        messages.success(request, "UE supprimée.")
+        return redirect("ue_liste")
+    return render(request, "emploi_du_temps/ressources/ues/confirmer_suppression.html", {"ue": ue})
+
+
+@cd_requis
 def cours_liste(request):
-    cours = Cours.objects.select_related("option").all()
+    cours = Cours.objects.select_related("ue", "option").all()
     return render(request, "emploi_du_temps/ressources/cours/liste.html", {"cours": cours})
+
 
 @cd_requis
 def cours_creer(request):
     options = Option.objects.all()
+    ues = UE.objects.all()
     if request.method == "POST":
-        code = request.POST.get("codeCours", "").strip()
+        ue_id = request.POST.get("ue")
         intitule = request.POST.get("intitule", "").strip()
         volume = request.POST.get("volumeHoraire", "").strip()
         option_id = request.POST.get("option")
-        if not all([code, intitule, option_id]):
+        if not all([ue_id, intitule, option_id]):
             messages.error(request, "Tous les champs marqués * sont obligatoires.")
-        elif Cours.objects.filter(codeCours=code).exists():
-            messages.error(request, "Ce code cours existe déjà.")
         else:
-            Cours.objects.create(codeCours=code, intitule=intitule, volumeHoraire=volume, option_id=option_id)
-            messages.success(request, f"Cours {intitule} créé avec succès.")
-            return redirect("cours_liste")
-    return render(request, "emploi_du_temps/ressources/cours/form.html", {"action": "Créer", "cours": None, "options": options})
+            cours = Cours(ue_id=ue_id, intitule=intitule, volumeHoraire=volume, option_id=option_id)
+            try:
+                cours.full_clean()
+                cours.save()
+            except ValidationError as e:
+                for msg in e.messages:
+                    messages.error(request, msg)
+            else:
+                messages.success(request, f"Cours {intitule} créé avec succès.")
+                return redirect("cours_liste")
+    return render(request, "emploi_du_temps/ressources/cours/form.html", {"action": "Créer", "cours": None, "options": options, "ues": ues})
+
 
 @cd_requis
 def cours_modifier(request, pk):
-    cours = get_object_or_404(Cours, codeCours=pk)
+    cours = get_object_or_404(Cours.objects.select_related("ue", "option"), pk=pk)
     options = Option.objects.all()
+    ues = UE.objects.all()
     if request.method == "POST":
+        cours.ue_id = request.POST.get("ue", cours.ue_id)
         cours.intitule = request.POST.get("intitule", cours.intitule).strip()
         cours.volumeHoraire = request.POST.get("volumeHoraire", cours.volumeHoraire).strip()
         cours.option_id = request.POST.get("option", cours.option_id)
-        cours.save()
-        messages.success(request, "Cours modifié avec succès.")
-        return redirect("cours_liste")
-    return render(request, "emploi_du_temps/ressources/cours/form.html", {"action": "Modifier", "cours": cours, "options": options})
+        try:
+            cours.full_clean()
+            cours.save()
+        except ValidationError as e:
+            for msg in e.messages:
+                messages.error(request, msg)
+        else:
+            messages.success(request, "Cours modifié avec succès.")
+            return redirect("cours_liste")
+    return render(request, "emploi_du_temps/ressources/cours/form.html", {"action": "Modifier", "cours": cours, "options": options, "ues": ues})
+
 
 @cd_requis
 def cours_supprimer(request, pk):
-    cours = get_object_or_404(Cours, codeCours=pk)
+    cours = get_object_or_404(Cours, pk=pk)
     if request.method == "POST":
         try:
             cours.delete()

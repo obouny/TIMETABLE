@@ -3,21 +3,23 @@ from datetime import date, time
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Cours, Creneau, EmploiDuTemps, Option, Salle, Utilisateur
+from .models import Cours, Creneau, EmploiDuTemps, Option, Salle, UE, Utilisateur
 
 
 class ControleAccesRoleTests(TestCase):
     def setUp(self):
         self.option_info = Option.objects.create(nom="Informatique", niveau=1)
         self.option_math = Option.objects.create(nom="Mathématiques", niveau=1)
+        self.ue_info = UE.objects.create(codeUE="INFO101", intituleUE="Algorithmique")
+        self.ue_math = UE.objects.create(codeUE="MATH101", intituleUE="Analyse")
         self.cours_info = Cours.objects.create(
-            codeCours="INFO101",
+            ue=self.ue_info,
             intitule="Algorithmique",
             volumeHoraire="30h",
             option=self.option_info,
         )
         self.cours_math = Cours.objects.create(
-            codeCours="MATH101",
+            ue=self.ue_math,
             intitule="Analyse",
             volumeHoraire="30h",
             option=self.option_math,
@@ -95,6 +97,7 @@ class ControleAccesRoleTests(TestCase):
         routes = [
             reverse("enseignant_liste"),
             reverse("etudiant_liste"),
+            reverse("ue_liste"),
             reverse("cours_liste"),
             reverse("salle_liste"),
             reverse("option_liste"),
@@ -155,3 +158,35 @@ class ControleAccesRoleTests(TestCase):
         self.client.force_login(self.etudiant)
         response = self.client.get(reverse("tableau_de_bord"))
         self.assertEqual(list(response.context["emplois_du_temps"]), [self.emploi])
+
+
+class UECoursTests(TestCase):
+    def setUp(self):
+        self.option = Option.objects.create(nom="Génie Logiciel", niveau=5)
+        self.ue = UE.objects.create(codeUE="GLO418", intituleUE="Développement Web et mobiles")
+
+    def test_deux_cours_peuvent_partager_le_code_ue(self):
+        mobile = Cours.objects.create(
+            ue=self.ue,
+            intitule="Développement d'applications mobiles",
+            volumeHoraire="45",
+            option=self.option,
+        )
+        web = Cours.objects.create(
+            ue=self.ue,
+            intitule="Développement D’Applications Web",
+            volumeHoraire="45",
+            option=self.option,
+        )
+
+        self.assertEqual(mobile.codeCours, "GLO418")
+        self.assertEqual(web.codeCours, "GLO418")
+        self.assertNotEqual(mobile.pk, web.pk)
+
+    def test_ue_limitee_a_deux_cours(self):
+        Cours.objects.create(ue=self.ue, intitule="Mobile", option=self.option)
+        Cours.objects.create(ue=self.ue, intitule="Web", option=self.option)
+        troisieme = Cours(ue=self.ue, intitule="API", option=self.option)
+
+        with self.assertRaisesMessage(Exception, "Cette UE possède déjà deux cours"):
+            troisieme.full_clean()

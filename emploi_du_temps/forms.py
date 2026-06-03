@@ -6,6 +6,12 @@ from .models import Cours, Creneau, EmploiDuTemps, Option, Salle, Utilisateur
 from .grille import PLAGES_HORAIRES, JOURS_EDT, trouver_plage
 
 
+class CoursModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        ue_label = obj.ue.intituleUE if getattr(obj, "ue", None) else "UE non renseignée"
+        return f"{obj.codeCours} — {obj.intitule} — UE : {ue_label} ({obj.option.nom})"
+
+
 class UtilisateurRoleCreationForm(forms.ModelForm):
     """Création d'un utilisateur métier avec rôle imposé par la vue."""
 
@@ -128,7 +134,7 @@ class CreneauForm(forms.ModelForm):
     def __init__(self, *args, emploi_du_temps: EmploiDuTemps, **kwargs):
         super().__init__(*args, **kwargs)
         self.emploi_du_temps = emploi_du_temps
-        self.fields["cours"].queryset = Cours.objects.select_related("option").all()
+        self.fields["cours"].queryset = Cours.objects.select_related("ue", "option").all()
         self.fields["enseignant"].queryset = Utilisateur.objects.filter(role=Utilisateur.Role.ENSEIGNANT)
         for field in self.fields.values():
             field.widget.attrs.setdefault("class", "form-control")
@@ -178,7 +184,7 @@ class CreneauDirectForm(forms.Form):
     semaine    = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}), label="Semaine (lundi)")
     jour       = forms.ChoiceField(choices=[("", "— Sélectionner —")] + JOUR_CHOICES, label="Jour")
     plage      = forms.ChoiceField(choices=[("", "— Sélectionner —")] + PLAGE_CHOICES, label="Créneau horaire")
-    cours      = forms.ModelChoiceField(queryset=Cours.objects.all(), label="Cours")
+    cours      = CoursModelChoiceField(queryset=Cours.objects.none(), label="Cours")
     enseignant = forms.ModelChoiceField(
         queryset=Utilisateur.objects.filter(role=Utilisateur.Role.ENSEIGNANT),
         label="Enseignant",
@@ -190,7 +196,7 @@ class CreneauDirectForm(forms.Form):
         self.instance = instance
         for field in self.fields.values():
             field.widget.attrs.setdefault("class", "form-control")
-        self.fields["cours"].queryset = Cours.objects.select_related("option").all()
+        self.fields["cours"].queryset = Cours.objects.select_related("ue", "option").all()
 
     def clean_semaine(self):
         """Force la date au lundi de la semaine — sécurité côté serveur."""

@@ -30,7 +30,7 @@ def trouver_plage(plage_id: str) -> dict | None:
 def construire_grille(emploi_du_temps: EmploiDuTemps) -> list[dict]:
     """Grille pour l'éditeur d'un EmploiDuTemps spécifique."""
     creneaux = Creneau.objects.filter(emploiDuTemps=emploi_du_temps).select_related(
-        "cours", "enseignant", "salle"
+        "cours__ue", "cours", "enseignant", "salle"
     )
     creneaux_par_cellule = {
         (c.jour, c.heureDebut, c.heureFin): c for c in creneaux
@@ -61,7 +61,7 @@ def construire_grille_semaine(
     """Grille hebdomadaire d'une salle donnée, filtrée selon le rôle utilisateur."""
     qs = Creneau.objects.filter(
         emploiDuTemps__semaine=semaine,
-    ).select_related("cours", "enseignant", "salle", "option", "emploiDuTemps")
+    ).select_related("cours__ue", "cours", "enseignant", "salle", "option", "emploiDuTemps")
 
     if utilisateur and utilisateur.is_authenticated:
         if utilisateur.role == utilisateur.Role.ENSEIGNANT:
