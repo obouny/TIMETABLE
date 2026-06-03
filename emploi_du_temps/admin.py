@@ -11,6 +11,7 @@ from .models import (
     Etudiant,
     Option,
     Salle,
+    UE,
     Utilisateur,
 )
 
@@ -57,11 +58,17 @@ class OptionAdmin(admin.ModelAdmin):
     list_filter = ("niveau",)
 
 
+@admin.register(UE)
+class UEAdmin(admin.ModelAdmin):
+    list_display = ("codeUE", "intituleUE")
+    search_fields = ("codeUE", "intituleUE")
+
+
 @admin.register(Cours)
 class CoursAdmin(admin.ModelAdmin):
-    list_display = ("codeCours", "intitule", "volumeHoraire", "option")
-    search_fields = ("codeCours", "intitule")
-    list_filter = ("option",)
+    list_display = ("codeCours", "ue", "intitule", "volumeHoraire", "option")
+    search_fields = ("codeCours", "intitule", "ue__intituleUE")
+    list_filter = ("ue", "option")
 
 
 @admin.register(Salle)

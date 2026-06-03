@@ -7,7 +7,7 @@
     <div class="page-icon"><i class="ti ti-book-2"></i></div>
     <div>
       <h1 class="page-title">Cours</h1>
-      <p class="page-sub">Gérez les cours du département</p>
+      <p class="page-sub">Gérez les cours/modules rattachés aux UE du département</p>
     </div>
   </div>
   <a href="{% url 'cours_creer' %}" class="btn btn-success">
@@ -26,7 +26,8 @@
       <thead>
         <tr>
           <th>Code</th>
-          <th>Intitulé</th>
+          <th>UE</th>
+          <th>Intitulé du cours</th>
           <th>Volume horaire</th>
           <th>Option</th>
           <th>Actions</th>
@@ -36,15 +37,16 @@
         {% for c in cours %}
         <tr>
           <td><span class="badge badge-blue">{{ c.codeCours }}</span></td>
-          <td class="td-bold">{{ c.intitule }}</td>
+          <td class="td-bold">{{ c.ue.intituleUE }}</td>
+          <td>{{ c.intitule }}</td>
           <td><span class="badge badge-orange"><span class="dot"></span>{{ c.volumeHoraire }}h</span></td>
           <td><span class="badge badge-green">{{ c.option.nom }}</span></td>
           <td>
             <div class="td-actions">
-              <a href="{% url 'cours_modifier' c.codeCours %}" class="btn btn-outline btn-sm">
+              <a href="{% url 'cours_modifier' c.pk %}" class="btn btn-outline btn-sm">
                 <i class="ti ti-pencil"></i> Modifier
               </a>
-              <a href="{% url 'cours_supprimer' c.codeCours %}" class="btn btn-danger-soft btn-sm">
+              <a href="{% url 'cours_supprimer' c.pk %}" class="btn btn-danger-soft btn-sm">
                 <i class="ti ti-trash"></i> Supprimer
               </a>
             </div>

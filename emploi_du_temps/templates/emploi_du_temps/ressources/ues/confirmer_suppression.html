@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titre %}Supprimer UE — EDT ENSPM{% endblock %}
+{% block contenu %}
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-alert-triangle"></i></div>
+    <div>
+      <h1 class="page-title">Supprimer une UE</h1>
+      <p class="page-sub">Cette action est définitive.</p>
+    </div>
+  </div>
+</div>
+<div class="card" style="padding:24px;">
+  <p>
+    Voulez-vous vraiment supprimer l’UE
+    <strong>{{ ue.intituleUE }}</strong>
+    (<span class="badge badge-blue">{{ ue.codeUE }}</span>) ?
+  </p>
+  <form method="post" class="form-actions">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger-soft"><i class="ti ti-trash"></i> Supprimer</button>
+    <a href="{% url 'ue_liste' %}" class="btn btn-secondary">Annuler</a>
+  </form>
+</div>
+{% endblock %}

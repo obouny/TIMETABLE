@@ -44,10 +44,15 @@ urlpatterns = [
     path("etudiants/<int:pk>/modifier/", views.etudiant_modifier, name="etudiant_modifier"),
     path("etudiants/<int:pk>/supprimer/", views.etudiant_supprimer, name="etudiant_supprimer"),
 
+    path("ues/", views.ue_liste, name="ue_liste"),
+    path("ues/nouvelle/", views.ue_creer, name="ue_creer"),
+    path("ues/<str:pk>/modifier/", views.ue_modifier, name="ue_modifier"),
+    path("ues/<str:pk>/supprimer/", views.ue_supprimer, name="ue_supprimer"),
+
     path("cours/", views.cours_liste, name="cours_liste"),
     path("cours/nouveau/", views.cours_creer, name="cours_creer"),
-    path("cours/<str:pk>/modifier/", views.cours_modifier, name="cours_modifier"),
-    path("cours/<str:pk>/supprimer/", views.cours_supprimer, name="cours_supprimer"),
+    path("cours/<int:pk>/modifier/", views.cours_modifier, name="cours_modifier"),
+    path("cours/<int:pk>/supprimer/", views.cours_supprimer, name="cours_supprimer"),
 
     path("salles/", views.salle_liste, name="salle_liste"),
     path("salles/nouvelle/", views.salle_creer, name="salle_creer"),

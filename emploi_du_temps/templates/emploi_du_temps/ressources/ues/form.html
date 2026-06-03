@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titre %}{{ action }} UE — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-components"></i></div>
+    <div>
+      <h1 class="page-title">{{ action }} une UE</h1>
+      <p class="page-sub">Renseignez le code et l’intitulé de l’unité d’enseignement</p>
+    </div>
+  </div>
+  <a href="{% url 'ue_liste' %}" class="btn btn-secondary">
+    <i class="ti ti-arrow-left"></i> Retour
+  </a>
+</div>
+
+<div class="form-card">
+  <div class="form-card-head">
+    <h2>Informations de l’UE</h2>
+    <p>Les cours rattachés reprendront automatiquement le code UE comme code cours.</p>
+  </div>
+  <div class="form-card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="codeUE">
+            <i class="ti ti-hash" style="color:var(--blue)"></i>
+            Code UE <span class="form-required">*</span>
+          </label>
+          <input class="form-control" type="text" id="codeUE" name="codeUE"
+                 value="{{ ue.codeUE|default:'' }}" placeholder="Ex : GLO418"
+                 {% if action == "Modifier" %}readonly{% endif %} required/>
+          {% if action == "Modifier" %}<p class="form-hint">Le code UE ne peut pas être modifié.</p>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="intituleUE">
+            <i class="ti ti-file-text" style="color:var(--blue)"></i>
+            Intitulé UE <span class="form-required">*</span>
+          </label>
+          <input class="form-control" type="text" id="intituleUE" name="intituleUE"
+                 value="{{ ue.intituleUE|default:'' }}"
+                 placeholder="Ex : Développement Web et mobiles" required/>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+          <i class="ti {% if action == 'Créer' %}ti-plus{% else %}ti-device-floppy{% endif %}"></i>
+          {% if action == "Créer" %}Créer l’UE{% else %}Enregistrer{% endif %}
+        </button>
+        <a href="{% url 'ue_liste' %}" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

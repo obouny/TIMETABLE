@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block titre %}UE — EDT ENSPM{% endblock %}
+{% block contenu %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="ti ti-components"></i></div>
+    <div>
+      <h1 class="page-title">Unités d’enseignement</h1>
+      <p class="page-sub">Gérez les UE et leurs cours associés</p>
+    </div>
+  </div>
+  <a href="{% url 'ue_creer' %}" class="btn btn-success">
+    <i class="ti ti-plus"></i> Nouvelle UE
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-head-title">Liste des UE</span>
+    <span class="count-pill">{{ ues.count }} au total</span>
+  </div>
+  {% if ues %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Code UE</th>
+          <th>Intitulé UE</th>
+          <th>Cours associés</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ue in ues %}
+        <tr>
+          <td><span class="badge badge-blue">{{ ue.codeUE }}</span></td>
+          <td class="td-bold">{{ ue.intituleUE }}</td>
+          <td>
+            <span class="badge badge-orange"><span class="dot"></span>{{ ue.cours.count }}/2</span>
+            {% for cours in ue.cours.all %}
+              <div style="margin-top:4px;">{{ cours.intitule }}</div>
+            {% empty %}
+              <div style="margin-top:4px;color:var(--gray-500);">Aucun cours rattaché</div>
+            {% endfor %}
+          </td>
+          <td>
+            <div class="td-actions">
+              <a href="{% url 'ue_modifier' ue.codeUE %}" class="btn btn-outline btn-sm">
+                <i class="ti ti-pencil"></i> Modifier
+              </a>
+              <a href="{% url 'ue_supprimer' ue.codeUE %}" class="btn btn-danger-soft btn-sm">
+                <i class="ti ti-trash"></i> Supprimer
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-ico"><i class="ti ti-components"></i></div>
+    <h3 class="empty-title">Aucune UE</h3>
+    <p class="empty-text">Ajoutez les unités d’enseignement avant de créer les cours.</p>
+    <a href="{% url 'ue_creer' %}" class="btn btn-success">
+      <i class="ti ti-plus"></i> Ajouter une UE
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
